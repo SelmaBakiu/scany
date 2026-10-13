@@ -1,0 +1,383 @@
+@import "tailwindcss";
+
+/*
+ * ============================================================================
+ * Design tokens
+ * ============================================================================
+ *
+ * Declaring them in @theme is what turns them into Tailwind utilities:
+ * --color-accent gives you bg-accent / text-accent / border-accent. Use the
+ * token names in markup, never raw hex — that is what makes seven themes
+ * possible without touching a single component.
+ *
+ * The values here are the LIGHT theme, and they are also the fallback if a
+ * theme name is ever unknown. Every theme below redefines the same 17 tokens.
+ */
+@theme {
+  --color-ground: #fbf8f4; /* page background */
+  --color-surface: #ffffff; /* cards, bars, sheets */
+  --color-tint: #f4eee6; /* hero band, search field */
+  --color-ink: #1c1a17; /* body text */
+  --color-muted: #6b645b; /* secondary text */
+  --color-line: #e8e1d8; /* hairlines, card borders */
+  --color-line-strong: #ddd4c7; /* control borders */
+  --color-accent: #b04a26; /* links, active pills, primary buttons */
+  --color-accent-strong: #8c3a1d; /* accent hover */
+  --color-on-accent: #ffffff; /* text ON an accent-filled button */
+  --color-veg: #3c5420; /* dietary tag ink */
+  --color-veg-soft: #edf1e6; /* dietary tag background */
+  --color-heat: #9c3f1d; /* spice tag ink */
+  --color-heat-soft: #faede7; /* spice tag background */
+  --color-chip: #f0ebe3; /* neutral tag background */
+  --color-chip-ink: #4a443c; /* neutral tag ink */
+  --color-faint: #c9b59a; /* placeholder artwork */
+
+  --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.12);
+  --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.16);
+
+  /*
+   * Every fallback is chosen for metrics close to the real face, so the page
+   * does not visibly reflow when the webfont arrives — and still looks
+   * deliberate if it never does.
+   */
+  /*
+   * The Chinese faces come AFTER the Latin ones on purpose. A browser walks
+   * this list per character: Latin text is drawn by Bricolage/Public Sans,
+   * and only the characters they have no glyph for — 蒜香面包 — fall through to
+   * PingFang (Apple), Microsoft YaHei (Windows), Noto Sans SC (Android and
+   * Linux). Put them first and every Latin letter would be drawn by the
+   * Chinese face too, which looks wrong and loses the brand entirely.
+   */
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --font-body: "Public Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei",
+    "Noto Sans SC", "Hiragino Sans GB", system-ui, sans-serif;
+}
+
+/*
+ * ============================================================================
+ * Themes
+ * ============================================================================
+ *
+ * One block per theme, each redefining the same token names. Nothing else in
+ * the app knows a theme exists — components ask for `bg-surface` and get
+ * whatever the active theme says that is.
+ *
+ * `color-scheme` is not decoration: it tells the browser to render scrollbars,
+ * text selection and — importantly here — native <select> dropdowns in dark
+ * chrome. Without it the language picker opens as a white popup in front of a
+ * black page.
+ *
+ * To add a theme: copy a block, change the hexes, add it to THEMES in
+ * lib/themes.ts. Contrast is checked by the suite described in the README; keep
+ * body text at 4.5:1 against its background and you will be fine.
+ */
+@layer base {
+  /*
+   * Lys repeats every value from @theme rather than relying on inheritance.
+   *
+   * It has to. The theme preview on the admin's Tema page renders inside the
+   * admin's own monochrome scope (below), so an element that only said
+   * `color-scheme: light` would inherit black-and-white tokens and the "Lys"
+   * preview would come out grey. Spelling the values out makes every theme
+   * self-contained, whatever it is nested inside.
+   */
+  :root,
+  [data-theme="lys"] {
+    color-scheme: light;
+    --color-ground: #fbf8f4;
+    --color-surface: #ffffff;
+    --color-tint: #f4eee6;
+    --color-ink: #1c1a17;
+    --color-muted: #6b645b;
+    --color-line: #e8e1d8;
+    --color-line-strong: #ddd4c7;
+    --color-accent: #b04a26;
+    --color-accent-strong: #8c3a1d;
+    --color-on-accent: #ffffff;
+    --color-veg: #3c5420;
+    --color-veg-soft: #edf1e6;
+    --color-heat: #9c3f1d;
+    --color-heat-soft: #faede7;
+    --color-chip: #f0ebe3;
+    --color-chip-ink: #4a443c;
+    --color-faint: #c9b59a;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.12);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.16);
+  }
+
+  /* ---------------------------------------------------------------- Svart */
+  [data-theme="svart"] {
+    color-scheme: dark;
+    --color-ground: #121212;
+    --color-surface: #1c1c1c;
+    --color-tint: #242424;
+    --color-ink: #f5f3f0;
+    --color-muted: #a8a29b;
+    --color-line: #2f2f2f;
+    --color-line-strong: #434343;
+    --color-accent: #e2703a;
+    --color-accent-strong: #f08a57;
+    --color-on-accent: #17120e;
+    --color-veg: #9ccd77;
+    --color-veg-soft: #1e2a18;
+    --color-heat: #f0875c;
+    --color-heat-soft: #2e1c14;
+    --color-chip: #282828;
+    --color-chip-ink: #cdc8c1;
+    --color-faint: #525252;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /* ------------------------------------------------------------------ Rød */
+  [data-theme="rod"] {
+    color-scheme: dark;
+    --color-ground: #17100f;
+    --color-surface: #221615;
+    --color-tint: #2b1c1a;
+    --color-ink: #f9f1f0;
+    --color-muted: #bda8a5;
+    --color-line: #37231f;
+    --color-line-strong: #4d2f2b;
+    --color-accent: #e8615a;
+    --color-accent-strong: #f47d77;
+    --color-on-accent: #1a0d0c;
+    --color-veg: #9ccd77;
+    --color-veg-soft: #1c2718;
+    --color-heat: #f2845c;
+    --color-heat-soft: #331c14;
+    --color-chip: #2d1e1c;
+    --color-chip-ink: #d3bfbc;
+    --color-faint: #60403c;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /* ------------------------------------------------------------------ Blå */
+  [data-theme="bla"] {
+    color-scheme: dark;
+    --color-ground: #0e1420;
+    --color-surface: #161f2d;
+    --color-tint: #1d2737;
+    --color-ink: #eef3f9;
+    --color-muted: #a6b6c9;
+    --color-line: #243145;
+    --color-line-strong: #334459;
+    --color-accent: #5aa6ee;
+    --color-accent-strong: #7cbcf7;
+    --color-on-accent: #09111c;
+    --color-veg: #8ccfa0;
+    --color-veg-soft: #15241c;
+    --color-heat: #f0905f;
+    --color-heat-soft: #2c1d14;
+    --color-chip: #1f2a3a;
+    --color-chip-ink: #c4d0de;
+    --color-faint: #3d4d64;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /* ---------------------------------------------------------------- Grønn */
+  [data-theme="gronn"] {
+    color-scheme: dark;
+    --color-ground: #0e1611;
+    --color-surface: #15201a;
+    --color-tint: #1c2921;
+    --color-ink: #eff6f0;
+    --color-muted: #a8bdad;
+    --color-line: #22332a;
+    --color-line-strong: #30463a;
+    --color-accent: #58bf80;
+    --color-accent-strong: #76d49a;
+    --color-on-accent: #07120b;
+    --color-veg: #96d9ab;
+    --color-veg-soft: #16271c;
+    --color-heat: #ee9163;
+    --color-heat-soft: #2b1d14;
+    --color-chip: #1d2b22;
+    --color-chip-ink: #c5d5c9;
+    --color-faint: #3d5546;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /* ---------------------------------------------------------------- Lilla */
+  [data-theme="lilla"] {
+    color-scheme: dark;
+    --color-ground: #140f1c;
+    --color-surface: #1e1729;
+    --color-tint: #261e34;
+    --color-ink: #f4effa;
+    --color-muted: #b7abc9;
+    --color-line: #2f2541;
+    --color-line-strong: #403355;
+    --color-accent: #ab7cf0;
+    --color-accent-strong: #c19bf7;
+    --color-on-accent: #120b1b;
+    --color-veg: #9ccd8f;
+    --color-veg-soft: #19241a;
+    --color-heat: #ee8f62;
+    --color-heat-soft: #2b1c15;
+    --color-chip: #271f34;
+    --color-chip-ink: #cdc2db;
+    --color-faint: #4e3f67;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /* ----------------------------------------------------------------- Gull */
+  [data-theme="gull"] {
+    color-scheme: dark;
+    --color-ground: #15120b;
+    --color-surface: #1f1b11;
+    --color-tint: #282216;
+    --color-ink: #f8f3e6;
+    --color-muted: #c2b69b;
+    --color-line: #342d1d;
+    --color-line-strong: #493f29;
+    --color-accent: #e0ad44;
+    --color-accent-strong: #efc265;
+    --color-on-accent: #150f03;
+    --color-veg: #b2ca74;
+    --color-veg-soft: #222616;
+    --color-heat: #e8955a;
+    --color-heat-soft: #2c1e13;
+    --color-chip: #282214;
+    --color-chip-ink: #d8ccae;
+    --color-faint: #5e5131;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.55);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.6);
+  }
+
+  /*
+   * ==========================================================================
+   * The merchant's admin: always black and white
+   * ==========================================================================
+   *
+   * The theme belongs to the DINER. A merchant running a dark purple menu
+   * still edits it on a white page with black text, because an admin is a
+   * tool and a tool should not change colour underneath you — and because
+   * judging a theme is impossible when the thing you are judging it in is
+   * wearing it too.
+   *
+   * This is the same seventeen tokens as every theme, so not one admin
+   * component needed changing: they ask for `bg-surface` and `text-ink` and
+   * get white and black here, exactly as they get warm cream and brown on the
+   * diner's menu. The scope is one attribute on the admin shell, so the theme
+   * literally cannot reach it — there is no `data-theme` above it to inherit
+   * from.
+   *
+   * The one exception is the preview box on the Tema page, which sets its own
+   * `data-theme` INSIDE this scope. A descendant's own custom properties beat
+   * an ancestor's, so the preview shows the real theme while everything
+   * around it stays monochrome.
+   *
+   * Status colour is carried by the icon (a tick or a cross) rather than by
+   * hue, which is the accessible way round in any case.
+   */
+  [data-chrome="admin"] {
+    color-scheme: light;
+    --color-ground: #ffffff; /* page background */
+    --color-surface: #ffffff; /* cards, bars, sheets */
+    --color-tint: #f5f5f5; /* inset fields, image placeholders */
+    --color-ink: #000000; /* body text */
+    --color-muted: #595959; /* secondary text — 7.0:1 on white */
+    --color-line: #e4e4e4; /* hairlines, card borders */
+    --color-line-strong: #c9c9c9; /* control borders */
+    --color-accent: #000000; /* primary buttons, active nav */
+    --color-accent-strong: #2b2b2b; /* accent hover */
+    --color-on-accent: #ffffff; /* label inside a black button */
+    --color-veg: #1f1f1f; /* "saved" / "visible" badge ink */
+    --color-veg-soft: #ededed;
+    --color-heat: #1a1a1a; /* "error" / "delete" badge ink */
+    --color-heat-soft: #e6e6e6;
+    --color-chip: #f0f0f0;
+    --color-chip-ink: #3d3d3d;
+    --color-faint: #bdbdbd;
+    --shadow-pop: 0 18px 44px rgb(0 0 0 / 0.1);
+    --shadow-sheet: 0 -12px 40px rgb(0 0 0 / 0.14);
+  }
+
+  /*
+   * These MUST sit inside @layer base.
+   *
+   * Tailwind v4 puts its utilities in the `utilities` cascade layer, and any
+   * rule written outside a layer beats every layered rule regardless of
+   * specificity. So an unlayered `a { color: ... }` silently overrides
+   * `text-ink` on every link — which once turned the brand, the category pills
+   * and the nav into accent colour, and made the active pill's label invisible
+   * on its own background. Layered here, the utilities win, as they should.
+   */
+  body {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The default for prose links. Any element with its own text-* utility
+     overrides this, which is the whole point of the layer. */
+  a {
+    color: var(--color-accent);
+  }
+  a:hover {
+    color: var(--color-accent-strong);
+  }
+
+  /*
+   * A visible focus ring on anything keyboard-reachable. The browser default is
+   * easy to lose against a warm background, and a menu page is exactly the kind
+   * of thing people navigate with a keyboard or a switch device.
+   */
+  :where(a, button, input, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Hide the browser's own search-field clear button; we draw our own. */
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+/*
+ * The sheet's entrance. Reduced to a plain fade for anyone who has asked their
+ * system for less motion — a sheet flying up the screen is exactly the kind of
+ * thing that triggers motion sickness.
+ */
+@keyframes sheet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-enter {
+  animation: sheet-rise 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scrim-enter {
+  animation: sheet-fade 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-enter,
+  .scrim-enter {
+    animation: sheet-fade 1ms linear;
+  }
+}
