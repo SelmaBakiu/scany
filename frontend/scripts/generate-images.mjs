@@ -147,7 +147,7 @@ if (signInError || !session.user) {
 /**
  * Which restaurant. RLS already limits the query to restaurants this account
  * is a member of, so no filtering by hand — and if the answer is empty, the
- * account was never linked (see supabase/merchant-setup.sql).
+ * account was never linked (see ../backend/supabase/merchant-setup.sql).
  */
 const { data: membership } = await supabase
   .from("restaurant_members")
@@ -157,7 +157,7 @@ const { data: membership } = await supabase
 
 if (!membership) {
   console.error(`\n${email} is signed in but is not a member of any restaurant.`);
-  console.error("Run supabase/merchant-setup.sql with this email, then try again.\n");
+  console.error("Run ../backend/supabase/merchant-setup.sql with this email, then try again.\n");
   process.exit(1);
 }
 

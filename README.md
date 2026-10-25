@@ -22,6 +22,11 @@ description for the card, a full one for its own page, and an ingredient list.
 
 Built with Next.js (App Router) + TypeScript + Tailwind CSS v4 + Supabase.
 
+The repository is split by responsibility:
+
+- `frontend/` is the runnable Next.js application.
+- `backend/` owns the Supabase schema, migrations, seed data, and SQL tests.
+
 ---
 
 > **Deploying?** `DEPLOY.md` has the ordered steps for Vercel + Supabase,
@@ -30,9 +35,9 @@ Built with Next.js (App Router) + TypeScript + Tailwind CSS v4 + Supabase.
 ## Quick start
 
 ```bash
-npm install
-cp .env.local.example .env.local      # then fill in the two values
-npm run dev                           # http://localhost:3000/m/sofra
+npm --prefix frontend install
+cp frontend/.env.local.example frontend/.env.local  # then fill in the two values
+npm run dev                                        # http://localhost:3000/m/sofra
 ```
 
 Until Supabase is configured, `/m/sofra` shows a setup screen instead of a menu
@@ -52,9 +57,9 @@ Until Supabase is configured, `/m/sofra` shows a setup screen instead of a menu
    - Older projects show a legacy **anon public** key instead. It still works
      here, but Supabase is deprecating `anon` and `service_role` at the end of
      2026, so prefer a publishable key for anything new.
-3. **SQL Editor → New query**. Paste the *contents* of `supabase/schema.sql`
+3. **SQL Editor → New query**. Paste the *contents* of `backend/supabase/schema.sql`
    (not its filename) and run it.
-4. New query again, paste `supabase/seed.sql`, run it. That creates the sample
+4. New query again, paste `backend/supabase/seed.sql`, run it. That creates the sample
    restaurant with the slug `sofra`.
 5. **Database → Replication → `supabase_realtime`**, tick `orders`. This is
    what makes orders appear instantly rather than on the next poll; `schema.sql`
@@ -85,7 +90,7 @@ who opened it.
 1. **Authentication → Users → Add user → Create new user.** Enter an email and
    a password, and tick **Auto Confirm User** — otherwise sign-in waits on a
    confirmation email that is not configured yet.
-2. Open `supabase/merchant-setup.sql`, replace the example email with the one
+2. Open `backend/supabase/merchant-setup.sql`, replace the example email with the one
    you just used, and run it in the SQL editor. It links that account to the
    restaurant and prints a row back to confirm.
 3. Go to `http://localhost:3000/admin` and sign in.
@@ -123,7 +128,7 @@ whatever is chosen, because a tool you work in all day should not change colour
 every time you redecorate the menu — and because black-on-white is the most
 legible thing there is.
 
-Mechanically: the theme is applied by `app/m/[slug]/layout.tsx`, on **its own
+Mechanically: the theme is applied by `frontend/app/m/[slug]/layout.tsx`, on **its own
 wrapper div**, and nowhere else. Not on `<html>`, not on the root layout. The
 admin renders outside that subtree with `data-chrome="admin"`, which redefines
 the same colour tokens in monochrome. Since a custom property set on an element
@@ -135,7 +140,7 @@ The one exception is the preview box on the **Tema** page. It is a real
 so the colours come back for exactly that rectangle. The preview is the thing
 itself, not a picture of it.
 
-If you ever need to check this held, `scripts/check-contrast.mjs` includes the
+If you ever need to check this held, `frontend/scripts/check-contrast.mjs` includes the
 admin palette alongside the seven themes.
 
 ### The admin speaks Norwegian and English
@@ -150,7 +155,7 @@ Three things are deliberately separate from the diner's language:
   `menuscan:prefs:<slug>`. A merchant working in English is not telling guests
   anything, and a guest switching to Italian does not relabel the merchant's
   buttons.
-- **Different table.** `lib/admin-i18n.ts`, not `lib/i18n.ts`. Same shape, so
+- **Different table.** `frontend/lib/admin-i18n.ts`, not `frontend/lib/i18n.ts`. Same shape, so
   adding a language means adding one block and TypeScript names every string
   you forgot.
 - **Server actions return keys, not sentences.** An action runs on the server,
@@ -165,7 +170,7 @@ never translated by the switcher. Only the chrome around it moves.
 ### Dish text is trilingual, not quadrilingual
 
 The forms edit **Norwegian, English and Chinese** — `EDITABLE_LOCALES` in
-`lib/admin-types.ts`. Italian exists in the database and is shown to guests,
+`frontend/lib/admin-types.ts`. Italian exists in the database and is shown to guests,
 but nothing in the admin writes it, so listing it there would mean every save
 blanking the Italian that came from `seed.sql`.
 
@@ -181,7 +186,7 @@ The image model is trained overwhelmingly on English captions. Given
 merely looks like food — which is how a menu ends up illustrated with the wrong
 dishes entirely.
 
-`promptForItem()` in `lib/ai-image.mjs` is the one place that decision is made,
+`promptForItem()` in `frontend/lib/ai-image.mjs` is the one place that decision is made,
 shared by the batch script and the button in the admin so they cannot drift:
 
 1. **`items.image_prompt`**, if the merchant wrote one — "AI image description
@@ -220,12 +225,12 @@ you can see exactly what was asked for:
 The anon key is in your page source and always will be — anyone can read it out
 and query the database directly. That is fine, because a row with no policy
 granting access is invisible, and the write policies in `schema.sql` check
-membership in `restaurant_members` against `auth.uid()`. `proxy.ts` redirecting
+membership in `restaurant_members` against `auth.uid()`. `frontend/proxy.ts` redirecting
 signed-out visitors away from `/admin` is **convenience, not security**: the
 real wall is in the database, so a forged cookie or a direct API call still gets
 nothing.
 
-`scripts/rls-test.sql` asserts exactly this against a real Postgres: anon reads
+`backend/tests/rls-test.sql` asserts exactly this against a real Postgres: anon reads
 but cannot write, a signed-in stranger changes zero rows, the owner can write,
 an unpublished menu is visible to its owner and invisible to everyone else.
 
@@ -237,7 +242,7 @@ an unpublished menu is visible to its owner and invisible to everyone else.
 In Mongo you'd have one restaurant document with categories and items inside it.
 Here `items → categories → menus → restaurants`, each its own table holding its
 parent's id. You still read it all in one request — see `MENU_QUERY` in
-`lib/menu.ts`, where the nesting in the query string mirrors the foreign keys —
+`frontend/lib/menu.ts`, where the nesting in the query string mirrors the foreign keys —
 but the admin can update one item's price without rewriting a document, and a
 foreign key makes an orphaned item impossible rather than merely unlikely.
 
@@ -255,7 +260,7 @@ database, not in a code review.
 
 **4. `numeric` columns arrive as strings.**
 `rate_per_eur` comes back as `"1.10000000"`, and `"1.1" * 8.5` is not what you
-want. `lib/menu.ts` wraps every numeric in `Number()` on the way in. This bites
+want. `frontend/lib/menu.ts` wraps every numeric in `Number()` on the way in. This bites
 everyone once.
 
 ---
@@ -263,90 +268,36 @@ everyone once.
 ## How it's put together
 
 ```
-proxy.ts                        session refresh + /admin redirect
-next.config.ts                  Tailwind loader + the next/image allow-list
-app/
-  layout.tsx                    fonts, metadata, viewport
-  page.tsx                      dev landing page
-  globals.css                   design tokens, 7 themes + the admin's mono scope
-  m/[slug]/layout.tsx           preference store + theme boot script
-  m/[slug]/page.tsx             SERVER: one query, then hand off
-  m/[slug]/[item]/page.tsx      SERVER: one dish, same cached query
-  admin/layout.tsx              data-chrome="admin" + the merchant's language
-  admin/login/page.tsx          sign in
-  admin/actions.ts              EVERY write. Server actions, one file
-  admin/orders/page.tsx         the kitchen's board
-  admin/qr/page.tsx             printable table codes
-  admin/items|categories|menus|theme|restaurant/page.tsx
-  m/[slug]/order/[token]/page.tsx  the guest's order, by its secret token
-components/
-  menu-browser.tsx       CLIENT: search, filters, scrollspy
-  item-detail.tsx        CLIENT: one dish's page
-  item-card.tsx          one dish — list row on phones, card from md up
-  modal-sheet.tsx        THE sheet. Every picker renders inside this one
-  filter-panel.tsx       the filter sheet's contents
-  option-sheet.tsx       single-choice list + the pill that opens it
-  prefs-controls.tsx     language / currency / Restaurantinfo pills
-  restaurant-info-sheet.tsx  address, hours, "Åpen nå", socials
-  cart-provider.tsx      the basket, shared by the menu and every dish
-  add-to-cart.tsx        "Legg til", and the quantity stepper it becomes
-  cart-sheet.tsx         the basket, in the same sheet as the filters
-  order-controls.tsx     the basket + "mine bestillinger" pills
-  order-status.tsx       status labels, the dot, the five-step tracker
-  order-status-view.tsx  the guest's live order page
-  active-orders-sheet.tsx  orders this browser has placed
-  prefs-provider.tsx     the shared preference store
-  setup-notice.tsx       the "connect Supabase" screen
-  admin/ui.tsx           shared form parts + the "Lagret" banner
-  admin/shell.tsx        the admin header and nav (translated)
-  admin/admin-locale.tsx the merchant's language + its picker
-  admin/ai-image-button.tsx  "Generer AI-bilde", one dish at a time
-  admin/orders-board.tsx     tabs, cards, search, the status buttons
-  admin/new-order-alerts.tsx sound, popup, browser notification, tab title
-  admin/qr-codes.tsx         one printable code per table
-  admin/*.tsx            one component per admin section
-lib/
-  supabase/anon.ts       public read-only client
-  supabase/server.ts     cookie-based client for the signed-in merchant
-  supabase/browser.ts    the merchant's client in the browser — Realtime only
-  admin.ts               the admin's queries + who is signed in
-  admin-types.ts         admin domain types + action results
-  menu.ts                the one public query + wire→view-model shaping
-  filter.ts              search and filtering (pure functions)
-  money.ts               conversion, formatting, price bands
-  opening-hours.ts       "Åpen nå", in the RESTAURANT's timezone
-  slug.ts                slugify + collision-free unique slugs
-  i18n.ts                the DINER's UI strings (4 languages)
-  admin-i18n.ts          the MERCHANT's UI strings (nb + en) and action keys
-  ai-image.mjs           the photo prompt, fetch-with-retry, storage path
-  order-types.ts         basket + order shapes, and the jsonb mapping
-  cart-storage.ts        the basket and order receipts in localStorage
-  orders-client.ts       the guest's three RPC calls + watchOrder
-  admin-orders.ts        the merchant's order shapes, tabs and transitions
-  table-list.ts          "1-8,bar,ute-1" -> a list of tables
-  chime.ts               notification sounds, synthesised not shipped
-  themes.ts              the theme list (colours live in globals.css)
-  prefs-storage.ts       storage key + the pre-paint theme script
-  types.ts               domain types
-scripts/
-  check-contrast.mjs     WCAG check, 7 themes + the admin palette
-  generate-images.mjs    AI photos for the whole menu — `npm run generate-images`
-  rls-test.sql           proves the menu's security policies hold
-  orders-test.sql        proves the ordering ones do
-                         (both run inside a transaction that ROLLS BACK, so
-                          they are safe against a live database)
-supabase/
-  schema.sql             tables, constraints, RLS policies, storage bucket
-  merchant-setup.sql     link a dashboard-created user to the restaurant
-  menu-data.mjs          THE SEED MENU. Edit this, not seed.sql
-  generate-seed.mjs      menu-data.mjs -> seed.sql — `npm run seed`
-  seed.sql               generated; paste into the Supabase SQL editor
+frontend/
+  proxy.ts                        session refresh + /admin redirect
+  next.config.ts                  Tailwind loader + next/image allow-list
+  app/                            routes, layouts, server actions, global CSS
+  components/                     diner and merchant UI
+  lib/                            domain logic and Supabase clients
+  scripts/
+    check-contrast.mjs            WCAG checks
+    generate-images.mjs           batch AI menu photos
+  package.json                    development and build commands
+backend/
+  supabase/
+    schema.sql                    tables, functions, RLS, storage bucket
+    merchant-setup.sql            link an Auth user to a restaurant
+    menu-data.mjs                 editable source for the seed menu
+    generate-seed.mjs             menu-data.mjs -> seed.sql
+    seed.sql                      generated sample data
+    migrate-*.sql                 incremental database migrations
+  tests/
+    rls-test.sql                  security policy checks
+    orders-test.sql               ordering checks
+                                 (both roll back their transactions)
+  package.json                    seed-generation command
 ```
 
 ### Editing the menu
 
-Day to day, use the admin. `supabase/menu-data.mjs` + `npm run seed` is for the
-**initial** menu — it regenerates `supabase/seed.sql`, which you paste into the
+Day to day, use the admin. `backend/supabase/menu-data.mjs` + `npm run seed`
+from `backend/` is for the **initial** menu — it regenerates
+`backend/supabase/seed.sql`, which you paste into the
 SQL editor. The generator refuses to write anything if a dish is missing a
 translation or uses an unknown tag, so a half-translated dish fails on your
 machine instead of showing up blank in front of a diner.
@@ -369,6 +320,7 @@ bucket and its path in `items.image_path`:
 For a whole menu at once:
 
 ```bash
+cd frontend
 npm run generate-images -- --check     # is it set up? generates nothing
 npm run generate-images                # only dishes with no photo yet
 npm run generate-images -- --force     # redo everything
@@ -381,7 +333,7 @@ Start with `--check`. It signs in, finds the restaurant and counts the dishes,
 then stops — so a wrong password or a missing variable costs you two seconds
 instead of two minutes of waiting for a picture that was never going to arrive.
 
-It needs two more lines in `.env.local` — the same email and password you sign
+It needs two more lines in `frontend/.env.local` — the same email and password you sign
 in to `/admin` with:
 
 ```
@@ -401,7 +353,7 @@ when a diner opens the menu would mean waiting half a minute for a picture that
 never changes. So: generated once, stored, served like any other file.
 
 The prompt, the retry logic and the storage path all live in one place,
-`lib/ai-image.mjs` — plain JavaScript because it is imported by both the server
+`frontend/lib/ai-image.mjs` — plain JavaScript because it is imported by both the server
 action (TypeScript, bundled by Next) and the script (bare `node`, no build
 step). Four details worth knowing:
 
@@ -443,7 +395,7 @@ Simplified Chinese is a first-class language, not a bolt-on:
   face and only 蒜香面包 falls through to PingFang / Microsoft YaHei / Noto Sans
   SC. Put them first and every Latin letter would be drawn by the Chinese face.
 - A dish with no Chinese falls back to **English, then Norwegian** — `pick()`
-  in `lib/i18n.ts`.
+  in `frontend/lib/i18n.ts`.
 - The **language pill shows 中文**, not "ZH", because "ZH" means nothing to a
   Chinese reader.
 
@@ -458,7 +410,7 @@ Asked for CNY it renders `¥28.50` in Chinese and **`CN¥28.50` in English**,
 `28,50 CNY` in Norwegian — the disambiguation from Japanese yen is automatic
 and per-locale, which is better than hardcoding a prefix.
 
-The one addition is `ALWAYS_DECIMALS` in `lib/money.ts`. The general rule is
+The one addition is `ALWAYS_DECIMALS` in `frontend/lib/money.ts`. The general rule is
 "kr 95", not "kr 95,00", because that is how a menu is written. Yuan is the
 exception: ¥28 reads like a listed price, ¥28.50 reads like what it is, a
 conversion.
@@ -466,7 +418,7 @@ conversion.
 ### Themes
 
 Seven: `lys`, `svart`, `rod`, `bla`, `gronn`, `lilla`, `gull`. Each is one
-`[data-theme="..."]` block in `app/globals.css` redefining the same 17 colour
+`[data-theme="..."]` block in `frontend/app/globals.css` redefining the same 17 colour
 tokens. No component knows a theme exists — they ask for `bg-surface` and get
 whatever the active theme says that is.
 
@@ -475,7 +427,7 @@ same for every diner. It used to be a per-diner picker in the top bar; that
 place in the bar now belongs to **Restaurantinfo**.
 
 To add one: copy a block, change the hexes, add an entry to `THEMES` in
-`lib/themes.ts`, and run `npm run check:contrast`. That script parses the real
+`frontend/lib/themes.ts`, and run `npm run check:contrast` from `frontend/`. That script parses the real
 stylesheet and checks twelve colour pairs per theme against WCAG AA, so a
 pretty-but-unreadable palette fails before anyone sees it.
 
@@ -491,7 +443,7 @@ Two details that are easy to miss and painful to debug:
 
 ### Opening hours and "Åpen nå"
 
-`lib/opening-hours.ts`, and it is fussier than it looks:
+`frontend/lib/opening-hours.ts`, and it is fussier than it looks:
 
 - **Day 0 is Monday**, the way Norway counts weeks — not Sunday, the way
   `Date.getDay()` does. The conversion happens in exactly one place.
@@ -506,7 +458,7 @@ Two details that are easy to miss and painful to debug:
 
 ### Why the server/client split is where it is
 
-`app/m/[slug]/page.tsx` runs the database query **on the server** and sends
+`frontend/app/m/[slug]/page.tsx` runs the database query **on the server** and sends
 finished HTML. A diner's phone gets the menu in the first response instead of
 downloading JavaScript, booting it, and only then asking for data. That is the
 whole reason this is Next.js and not a plain React SPA — and it's why Google can
@@ -528,7 +480,7 @@ currencies are derived at display time from `currencies.rate_per_eur` (EUR is
 just the pivot the maths routes through; it does not have to be anyone's base),
 and converted prices are shown with `≈` because they are indicative. Whole
 amounts print without decimals, because "kr 95" is how a menu is written and
-"kr 95,00" is not. All of it lives in `lib/money.ts`.
+"kr 95,00" is not. All of it lives in `frontend/lib/money.ts`.
 
 The price filter's bands are **derived from each menu's own prices** (the 33rd
 and 67th percentile) rather than hardcoded. A fixed "under 1000 minor units"
@@ -539,7 +491,7 @@ where two return nothing.
 
 **Language.** Dish names and descriptions live in the database
 (`item_translations`), because the *merchant* writes them. Only UI chrome
-("Filtre", "Søk i retter") lives in `lib/i18n.ts`, because *you* write that.
+("Filtre", "Søk i retter") lives in `frontend/lib/i18n.ts`, because *you* write that.
 Getting this backwards means a merchant has to call you to fix a typo.
 
 Adding a language is three steps: a row in `locales`, a block in `UI_STRINGS`,
@@ -567,7 +519,7 @@ Also not here, roughly in the order you would want them:
 3. **Printing to a kitchen printer** — most take an ESC/POS socket, which
    needs something running on the premises.
 4. **Mobile apps** — Expo / React Native. Same language, same types, same API;
-   `lib/types.ts`, `lib/money.ts` and `lib/filter.ts` move across unchanged.
+   `frontend/lib/types.ts`, `frontend/lib/money.ts` and `frontend/lib/filter.ts` move across unchanged.
 
 ---
 
@@ -587,7 +539,7 @@ Also not here, roughly in the order you would want them:
 
 ### Self-hosting the fonts
 
-`app/layout.tsx` loads Bricolage Grotesque and Public Sans via a stylesheet
+`frontend/app/layout.tsx` loads Bricolage Grotesque and Public Sans via a stylesheet
 link. `next/font/google` is better — it downloads the files at build time and
 self-hosts them, so there's no third-party request from a diner's phone. It
 needs network access to `fonts.googleapis.com` while building, which the sandbox
@@ -615,7 +567,7 @@ on `next/image`, hostname "xxxx.supabase.co" is not configured under
 images in your `next.config.js`
 ```
 
-`next.config.ts` builds the allow-list from `NEXT_PUBLIC_SUPABASE_URL`, so this
+`frontend/next.config.ts` builds the allow-list from `NEXT_PUBLIC_SUPABASE_URL`, so this
 means the variable was not set **at the moment the server started**. That file
 is read once, at startup: editing `.env.local` afterwards does not re-run it,
 and neither does reloading the page.
@@ -628,7 +580,7 @@ images work even before the variable is set — but the exact-host pattern is
 better, and it is what you get once the server restarts with the variable in
 place.
 
-### `proxy.ts`, not `middleware.ts`
+### `frontend/proxy.ts`, not `middleware.ts`
 
 Next.js 16.4 renamed the file convention. The old name still works and logs a
 deprecation warning on every dev start; this project uses the new one. If you
@@ -637,7 +589,7 @@ with a different name and a `proxy` export.
 
 ### Tailwind and Turbopack
 
-The `turbopack.rules` block in `next.config.ts` is what runs Tailwind v4. Remove
+The `turbopack.rules` block in `frontend/next.config.ts` is what runs Tailwind v4. Remove
 it and `@import "tailwindcss"` is passed through untouched: you get a 1 KB
 stylesheet with no utility classes, the page renders completely unstyled, and
 there is no error message. Worth knowing before you spend an hour on it.
@@ -663,14 +615,14 @@ Checked before hand-off, not assumed:
   policies.
 - Seeded data lands correctly: 7 categories, 56 items, 224 item translations
   (56 × 4 languages, no gaps), all with a long description and ingredients.
-- `scripts/rls-test.sql` passes: anon reads the menu but cannot change a price;
+- `backend/tests/rls-test.sql` passes: anon reads the menu but cannot change a price;
   a signed-in stranger updates and deletes **0** rows; the owner can write; an
   unpublished restaurant is visible to its owner and shows 0 rows to anon; the
   database refuses a second active menu; deleting a category cascades to its
   dishes.
 - The composite foreign key rejects an item pointing at another restaurant's
   category.
-- `scripts/orders-test.sql` passes, which is the one to read if you read any:
+- `backend/tests/orders-test.sql` passes, which is the one to read if you read any:
   a browser claiming `"price_minor": 1` is **charged the real price**, because
   `place_order()` never looks at what it sent; `anon` cannot select, insert or
   update `orders` at all; one guest's token will not read another's order;
@@ -757,7 +709,7 @@ Checked before hand-off, not assumed:
   translates to English with no Norwegian left behind.
 - The guest's add button translates across all four languages.
 
-- `npm run build`, `npx tsc --noEmit` and `npm run lint` all clean.
+- `npm run build`, `npx tsc --noEmit` and `npm run lint` all clean from `frontend/`.
 
 **This change**
 

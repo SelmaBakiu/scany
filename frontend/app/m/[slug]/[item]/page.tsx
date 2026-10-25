@@ -44,7 +44,7 @@ export default async function ItemPage({ params }: PageProps<"/m/[slug]/[item]">
           "Create a project at supabase.com (the free tier is plenty).",
           "In the dashboard, open Settings -> API Keys (or the Connect button) and copy your project URL and publishable key.",
           "Copy .env.local.example to .env.local and paste both values in.",
-          "Run supabase/schema.sql, then supabase/seed.sql, in the Supabase SQL editor.",
+          "Run backend/supabase/schema.sql, then backend/supabase/seed.sql, in the Supabase SQL editor.",
         ]}
       />
     );

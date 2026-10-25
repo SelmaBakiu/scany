@@ -17,8 +17,9 @@ environment, unless you want a separate staging database.
 1. **Create the project** at [supabase.com](https://supabase.com). Pick a
    region near your guests — Frankfurt or Stockholm for Norway. This is the one
    choice you cannot change later without migrating.
-2. **SQL Editor → New query.** Paste the *contents* of `supabase/schema.sql`
-   and run it. Then `supabase/seed.sql` in a second query.
+2. **SQL Editor → New query.** Paste the *contents* of
+   `backend/supabase/schema.sql` and run it. Then
+   `backend/supabase/seed.sql` in a second query.
 3. **Database → Replication → `supabase_realtime`** — tick `orders`.
 
    > Without this, orders still arrive, but on the next poll (6 seconds for a
@@ -27,7 +28,7 @@ environment, unless you want a separate staging database.
 
 4. **Authentication → Users → Add user → Create new user.** Your email, a
    password, and tick **Auto Confirm User**.
-5. Open `supabase/merchant-setup.sql`, put that email in, run it. It must come
+5. Open `backend/supabase/merchant-setup.sql`, put that email in, run it. It must come
    **after** step 4 — it links an account that already exists, so run early it
    links nothing and says so.
 6. **Settings → API Keys.** Keep the **Project URL** and the **publishable key**
@@ -66,8 +67,9 @@ git log --stat -1 | grep -i "\.env" || echo "no env files committed — good"
 
 ## 3. Vercel (10 minutes)
 
-1. **vercel.com → Add New → Project → Import** your repository. It detects
-   Next.js; leave every build setting alone.
+1. **vercel.com → Add New → Project → Import** your repository. Set the
+   **Root Directory** to `frontend`; Vercel then detects Next.js and the
+   remaining build settings can stay at their defaults.
 
 2. **Before clicking Deploy, open Environment Variables** and add both:
 
@@ -78,7 +80,7 @@ git log --stat -1 | grep -i "\.env" || echo "no env files committed — good"
 
    Set them for Production, Preview and Development.
 
-   > **This is the step to get right the first time.** `next.config.ts` builds
+   > **This is the step to get right the first time.** `frontend/next.config.ts` builds
    > the `next/image` allow-list from `NEXT_PUBLIC_SUPABASE_URL` **at build
    > time**. Add the variables after the first deploy and the build that is
    > already live never saw them — dish photos break with *"hostname … is not
@@ -143,7 +145,7 @@ print the page. Scan one with your own phone before printing forty.
 
 ## Optional: self-host the fonts
 
-`app/layout.tsx` loads two fonts with a `<link>` to Google Fonts, because the
+`frontend/app/layout.tsx` loads two fonts with a `<link>` to Google Fonts, because the
 sandbox this was built in had no access to `fonts.googleapis.com` at build
 time. **Vercel does**, so you can now switch to `next/font/google`, which
 downloads them at build time and serves them from your own domain: one less
@@ -157,7 +159,7 @@ exact swap is in `README.md` under "Self-hosting the fonts".
 | What you see | What it is |
 |---|---|
 | "Connect Supabase to see the menu" | The two environment variables are missing, or the build ran before they were added. Redeploy. |
-| `hostname … is not configured under images` | Same cause. Redeploy; do not edit `next.config.ts`. |
+| `hostname … is not configured under images` | Same cause. Redeploy; do not edit `frontend/next.config.ts`. |
 | "Kontoen er ikke koblet til en restaurant" | You are signed in, but `merchant-setup.sql` was not run with that exact email. Re-run it. |
 | The kitchen board says "Oppdaterer" and never "Live" | Realtime is not enabled for `orders` (step 1.3). Orders still arrive, just on the poll. |
 | Orders stop arriving overnight | The free Supabase project paused. Open the dashboard. |

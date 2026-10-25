@@ -356,13 +356,13 @@ const NB: AdminStrings = {
   loginSubmit: "Logg inn",
   loginPending: "Logger inn…",
   loginFootnote:
-    "Ingen konto? Kontoer opprettes i Supabase-panelet og kobles til restauranten med supabase/merchant-setup.sql. Det finnes ingen selvregistrering — den som kan lage en konto kan endre menyen.",
+    "Ingen konto? Kontoer opprettes i Supabase-panelet og kobles til restauranten med backend/supabase/merchant-setup.sql. Det finnes ingen selvregistrering — den som kan lage en konto kan endre menyen.",
 
   notConfiguredTitle: "Supabase er ikke satt opp",
-  notConfiguredDetail: "Admin trenger databasen. Fyll inn .env.local og kjør supabase/schema.sql.",
+  notConfiguredDetail: "Admin trenger databasen. Fyll inn frontend/.env.local og kjør backend/supabase/schema.sql.",
   noRestaurantTitle: "Kontoen er ikke koblet til en restaurant",
   noRestaurantDetail: (email) => `${email} er logget inn, men står ikke som eier av noen restaurant.`,
-  noRestaurantStep1: "Åpne supabase/merchant-setup.sql.",
+  noRestaurantStep1: "Åpne backend/supabase/merchant-setup.sql.",
   noRestaurantStep2: "Bytt ut e-postadressen med din egen.",
   noRestaurantStep3: "Kjør den i Supabase SQL Editor, og last denne siden på nytt.",
   databaseErrorTitle: "Databasen svarte ikke",
@@ -634,14 +634,14 @@ const EN: AdminStrings = {
   loginSubmit: "Sign in",
   loginPending: "Signing in…",
   loginFootnote:
-    "No account? Accounts are created in the Supabase dashboard and linked to the restaurant with supabase/merchant-setup.sql. There is no self-signup — anyone who can create an account can edit the menu.",
+    "No account? Accounts are created in the Supabase dashboard and linked to the restaurant with backend/supabase/merchant-setup.sql. There is no self-signup — anyone who can create an account can edit the menu.",
 
   notConfiguredTitle: "Supabase is not set up",
   notConfiguredDetail:
-    "The admin needs the database. Fill in .env.local and run supabase/schema.sql.",
+    "The admin needs the database. Fill in frontend/.env.local and run backend/supabase/schema.sql.",
   noRestaurantTitle: "This account is not linked to a restaurant",
   noRestaurantDetail: (email) => `${email} is signed in but does not own any restaurant.`,
-  noRestaurantStep1: "Open supabase/merchant-setup.sql.",
+  noRestaurantStep1: "Open backend/supabase/merchant-setup.sql.",
   noRestaurantStep2: "Replace the email address with your own.",
   noRestaurantStep3: "Run it in the Supabase SQL editor, then reload this page.",
   databaseErrorTitle: "The database did not answer",

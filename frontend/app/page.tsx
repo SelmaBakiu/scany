@@ -47,7 +47,7 @@ export default function Home() {
       <p className="text-[13px] leading-relaxed text-muted">
         The dish names, descriptions and prices in the seed data are placeholders
         from the design mockup, and the currency rates in{" "}
-        <code className="font-mono">supabase/seed.sql</code> are not live rates.
+        <code className="font-mono">backend/supabase/seed.sql</code> are not live rates.
         Replace both before anyone sees this.
       </p>
     </main>

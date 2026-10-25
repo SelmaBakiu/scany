@@ -52,7 +52,7 @@ export default async function MenuPage({ params }: PageProps<"/m/[slug]">) {
           "Create a project at supabase.com (the free tier is plenty).",
           "In the dashboard, open Settings -> API Keys (or the Connect button) and copy your project URL and publishable key.",
           "Copy .env.local.example to .env.local and paste both values in.",
-          "Run supabase/schema.sql, then supabase/seed.sql, in the Supabase SQL editor.",
+          "Run backend/supabase/schema.sql, then backend/supabase/seed.sql, in the Supabase SQL editor.",
           "Restart the dev server and reload this page.",
         ]}
       />
@@ -81,7 +81,7 @@ export default async function MenuPage({ params }: PageProps<"/m/[slug]">) {
         title={`No published menu at “${slug}”`}
         detail="Either no restaurant has that slug, or it exists but is_published is still false — row level security makes those two cases look identical from outside, on purpose."
         steps={[
-          "Run supabase/seed.sql to create the sample restaurant, then open /m/sofra.",
+          "Run backend/supabase/seed.sql to create the sample restaurant, then open /m/sofra.",
           "Or set is_published = true on your own row in the restaurants table.",
         ]}
       />

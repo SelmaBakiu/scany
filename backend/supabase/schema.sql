@@ -60,7 +60,7 @@ create table if not exists public.restaurant_locales (
 --   * the merchant app updates one item at a time (no whole-document rewrite),
 --   * an item's price and availability change far more often than the menu,
 --   * foreign keys make an orphaned item impossible, and
---   * the read side can still fetch it all in ONE request (see lib/menu.ts) —
+--   * the read side can still fetch it all in ONE request (see frontend/lib/menu.ts) —
 --     PostgREST assembles the nesting for you from these foreign keys.
 --
 -- `restaurant_id` is repeated on every level on purpose. It is not redundant
@@ -119,7 +119,7 @@ create index if not exists categories_menu_idx on public.categories (menu_id, so
 -- One row per (thing, language). The merchant types the Albanian name for a
 -- dish; that is DATA, so it lives in the database — not in a JSON file in the
 -- repo. Only UI chrome ("Search dishes", "Filters") is translated in code,
--- in lib/i18n.ts.
+-- in frontend/lib/i18n.ts.
 --
 -- Four near-identical tables instead of one generic
 -- translations(entity_type, entity_id, field, value) table: the generic shape
@@ -722,7 +722,7 @@ create trigger orders_touch_updated_at
 -- ---------------------------------------------------------------------------
 -- Is the kitchen open?
 --
--- The same three rules as lib/opening-hours.ts, and for the same reasons:
+-- The same three rules as frontend/lib/opening-hours.ts, and for the same reasons:
 -- day 0 is Monday, "now" is the RESTAURANT's local time, and a closing time
 -- earlier than its opening time means it is past midnight. Duplicated in SQL
 -- deliberately — the browser's clock belongs to the guest, and a guest whose

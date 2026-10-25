@@ -1,0 +1,8 @@
+{
+  "name": "menuscan-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "seed": "node supabase/generate-seed.mjs"
+  }
+}
