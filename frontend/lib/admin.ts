@@ -5,7 +5,7 @@ import type { Translated } from "./types";
 const IMAGE_BUCKET = "menu-images";
 
 export type MerchantContext =
-  | { status: "ok"; data: AdminData; email: string }
+  | { status: "ok"; data: AdminData; email: string; isPlatformAdmin: boolean }
   | { status: "not-configured" }
   | { status: "signed-out" }
   | { status: "no-restaurant"; email: string }
@@ -34,6 +34,12 @@ export async function getMerchantContext(): Promise<MerchantContext> {
   if (!user) return { status: "signed-out" };
 
   const email = user.email ?? "";
+
+  const { data: platformAdmin } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
   const { data: membership, error: membershipError } = await supabase
     .from("restaurant_members")
@@ -107,6 +113,7 @@ export async function getMerchantContext(): Promise<MerchantContext> {
   return {
     status: "ok",
     email,
+    isPlatformAdmin: Boolean(platformAdmin),
     data: {
       baseCurrency,
       restaurant: {

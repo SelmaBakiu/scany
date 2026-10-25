@@ -35,6 +35,9 @@ begin
   select id into owner_id from auth.users where email = 'owner@test.no';
   select id into stranger_id from auth.users where email = 'stranger@test.no';
 
+  insert into public.platform_admins (user_id) values (owner_id)
+  on conflict (user_id) do nothing;
+
   -- ---------------------------------------------------------------- ANON
   set local role anon;
   perform set_config('request.jwt.claim.sub', '', true);
@@ -64,6 +67,9 @@ begin
   set local role authenticated;
   perform set_config('request.jwt.claim.sub', stranger_id::text, true);
 
+  select count(*) into n from public.platform_admins;
+  if n <> 0 then raise exception 'A STRANGER SAW PLATFORM ADMIN MEMBERSHIP'; end if;
+
   update public.items set price_minor = 99999 where restaurant_id = rid;
   get diagnostics n = row_count;
   if n > 0 then raise exception 'A STRANGER UPDATED % ITEMS', n; end if;
@@ -78,6 +84,9 @@ begin
 
   -- ---------------------------------------------------------------- OWNER
   perform set_config('request.jwt.claim.sub', owner_id::text, true);
+
+  select count(*) into n from public.platform_admins where user_id = owner_id;
+  if n <> 1 then raise exception 'A PLATFORM ADMIN COULD NOT SEE THEIR OWN ROLE'; end if;
 
   update public.items set price_minor = price_minor where restaurant_id = rid;
   get diagnostics n = row_count;

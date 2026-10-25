@@ -31,8 +31,11 @@ environment, unless you want a separate staging database.
 5. Open `backend/supabase/merchant-setup.sql`, put that email in, run it. It must come
    **after** step 4 — it links an account that already exists, so run early it
    links nothing and says so.
-6. **Settings → API Keys.** Keep the **Project URL** and the **publishable key**
-   (`sb_publishable_…`) open; you need them in a minute.
+6. Open `backend/supabase/platform-admin-setup.sql`, replace the example email
+   with your account, and run it. This grants access to `/management/stores`.
+7. **Settings → API Keys.** Keep the **Project URL**, **publishable key**
+   (`sb_publishable_…`), and **secret key** (`sb_secret_…`) open; you need them
+   in a minute.
 
 > The free tier **pauses a project after 7 days with no activity**. For a
 > restaurant that is about to open but has no guests yet, that is a nasty
@@ -71,14 +74,17 @@ git log --stat -1 | grep -i "\.env" || echo "no env files committed — good"
    **Root Directory** to `frontend`; Vercel then detects Next.js and the
    remaining build settings can stay at their defaults.
 
-2. **Before clicking Deploy, open Environment Variables** and add both:
+2. **Before clicking Deploy, open Environment Variables** and add all three:
 
    | Name | Value |
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_…` |
+   | `SUPABASE_SECRET_KEY` | `sb_secret_…` |
 
-   Set them for Production, Preview and Development.
+   Set them for Production, Preview and Development. The secret key must keep
+   this exact name—never prefix it with `NEXT_PUBLIC_`—because it bypasses Row
+   Level Security and is used only by server-side Store Management actions.
 
    > **This is the step to get right the first time.** `frontend/next.config.ts` builds
    > the `next/image` allow-list from `NEXT_PUBLIC_SUPABASE_URL` **at build
@@ -91,7 +97,8 @@ git log --stat -1 | grep -i "\.env" || echo "no env files committed — good"
 3. **Deploy.** Two or three minutes.
 
 4. Open `https://<your-app>.vercel.app/m/sofra`. You should see the menu.
-   Then `/admin` and sign in with the account from step 1.4.
+   Then `/admin` and sign in with the account from step 1.4. Open
+   `/management/stores` to manage stores and owner credentials.
 
 Do **not** add `MENUSCAN_EMAIL` or `MENUSCAN_PASSWORD` to Vercel. They are only
 read by `npm run generate-images`, which you run on your own machine.
@@ -161,6 +168,7 @@ exact swap is in `README.md` under "Self-hosting the fonts".
 | "Connect Supabase to see the menu" | The two environment variables are missing, or the build ran before they were added. Redeploy. |
 | `hostname … is not configured under images` | Same cause. Redeploy; do not edit `frontend/next.config.ts`. |
 | "Kontoen er ikke koblet til en restaurant" | You are signed in, but `merchant-setup.sql` was not run with that exact email. Re-run it. |
+| "Store Management unavailable" | Check that `platform-admin-setup.sql` used the signed-in email and that `SUPABASE_SECRET_KEY` is present. Existing databases also need `migrate-2026-10-store-management.sql`. |
 | The kitchen board says "Oppdaterer" and never "Live" | Realtime is not enabled for `orders` (step 1.3). Orders still arrive, just on the poll. |
 | Orders stop arriving overnight | The free Supabase project paused. Open the dashboard. |
 | Ordering is refused with no obvious reason | Either the switch on the Restaurant page is off, or it is outside the opening hours — both are enforced in the database, in the restaurant's own timezone. |

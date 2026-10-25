@@ -17,9 +17,11 @@ import { AdminNav } from "./nav";
  */
 export function AdminShell({
   restaurant,
+  isPlatformAdmin,
   children,
 }: {
   restaurant: AdminRestaurant;
+  isPlatformAdmin: boolean;
   children: React.ReactNode;
 }) {
   const t = useAdminStrings();
@@ -41,6 +43,14 @@ export function AdminShell({
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
+            {isPlatformAdmin ? (
+              <Link
+                href="/management/stores"
+                className="inline-flex h-11 items-center rounded-full border border-line-strong px-3.5 text-[13px] font-semibold text-ink no-underline hover:border-ink"
+              >
+                Management
+              </Link>
+            ) : null}
             <AdminLanguagePicker />
             <Link
               href={`/m/${restaurant.slug}`}

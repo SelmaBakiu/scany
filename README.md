@@ -11,6 +11,10 @@ basket, send it, and watch the kitchen's progress live. No account, no app.
 edit the dishes, categories, menus, theme and restaurant details the diner
 sees. Every save shows up on the menu immediately.
 
+**Platform Store Management** (`/management/stores`) — create, edit and delete
+stores, set each owner's email and password, and control the dedicated
+`/m/<store-slug>` menu page.
+
 Ships with **Norwegian (bokmål) as the default language and NOK as the base
 currency**, plus English, Italian and Simplified Chinese. Both are per-restaurant settings
 (`restaurants.default_locale` and `restaurants.base_currency`), not hardcoded.
@@ -36,7 +40,7 @@ The repository is split by responsibility:
 
 ```bash
 npm --prefix frontend install
-cp frontend/.env.local.example frontend/.env.local  # then fill in the two values
+cp frontend/.env.local.example frontend/.env.local  # then fill in the three values
 npm run dev                                        # http://localhost:3000/m/sofra
 ```
 
@@ -47,8 +51,9 @@ Until Supabase is configured, `/m/sofra` shows a setup screen instead of a menu
 
 1. Create a project at [supabase.com](https://supabase.com). The free tier is
    plenty for this.
-2. **Settings → API Keys** in the dashboard sidebar. Copy the **Project URL**
-   and the **publishable key** (`sb_publishable_…`) into `.env.local`. The
+2. **Settings → API Keys** in the dashboard sidebar. Copy the **Project URL**,
+   the **publishable key** (`sb_publishable_…`), and the server-only
+   **secret key** (`sb_secret_…`) into `.env.local`. The
    **Connect** button in the top bar is a shortcut: pick Next.js and it hands
    you both values already formatted as env vars.
    - If that panel names the variable something other than
@@ -74,9 +79,9 @@ iterate without dropping the database.
 > `alter table … add column if not exists`, because `create table if not exists`
 > does nothing to a table that already exists.
 
-> **Do not** put the `service_role` / secret key anywhere in this project. It
-> bypasses Row Level Security, and anything named `NEXT_PUBLIC_*` is shipped to
-> the browser.
+> Keep `SUPABASE_SECRET_KEY` server-only. It bypasses Row Level Security, so do
+> not prefix it with `NEXT_PUBLIC_`, import it into client components, or commit
+> `.env.local`. The management code reads it only in `frontend/lib/supabase/admin.ts`.
 
 ### 2. Create the merchant's login
 
@@ -101,11 +106,27 @@ menu, so accounts are created by you, one at a time.
 If you sign in and see "Kontoen er ikke koblet til en restaurant", step 2 did
 not match — check the email in the SQL against the one in the user list.
 
+### 3. Create the platform administrator
+
+Store owners manage only their own menu at `/admin`. The account that manages
+all stores needs one extra role:
+
+1. Create that account under **Authentication → Users** if it does not exist.
+2. Open `backend/supabase/platform-admin-setup.sql`, replace
+   `admin@example.com`, and run it in the SQL editor.
+3. Sign in at `/admin/login?next=/management/stores`.
+
+From `/management/stores`, creating a store also creates and confirms its owner
+account, links it to the new restaurant, creates an active empty menu, and gives
+the store its dedicated `/m/<slug>` page. Editing can change the owner's email
+or password. Deleting a store removes its menus, dishes, orders, uploaded menu
+images and—when it belongs to no other store—the owner login.
+
 ---
 
 ## The admin
 
-Five sections, all at `/admin`:
+Seven sections, all at `/admin`:
 
 | Section | What it does |
 |---|---|
@@ -116,6 +137,10 @@ Five sections, all at `/admin`:
 | **Tema** | One of seven themes, applied to every visitor, with a live preview of the diner's menu above the save button. |
 | **Restaurant** | Name, logo, description (nb + en), address, Google Maps link, phone, email, opening hours per day, social links, and the **ordering on/off** switch. All of it feeds the **Restaurantinfo** sheet on the diner's menu. |
 | **QR-koder** | One printable code per table, generated in the browser. Downloads as PNG, prints as a sheet. |
+
+Platform administrators also see a **Management** link in the admin header.
+The platform screen is separate from a store's own admin so ordinary store
+owners cannot enumerate or change other stores.
 
 Everything confirms: a save shows **"Lagret"**, and every delete asks first and
 names what it is about to remove. Deleting a category takes its dishes with it,
@@ -269,7 +294,7 @@ everyone once.
 
 ```
 frontend/
-  proxy.ts                        session refresh + /admin redirect
+  proxy.ts                        session refresh + protected-route redirects
   next.config.ts                  Tailwind loader + next/image allow-list
   app/                            routes, layouts, server actions, global CSS
   components/                     diner and merchant UI
@@ -282,6 +307,7 @@ backend/
   supabase/
     schema.sql                    tables, functions, RLS, storage bucket
     merchant-setup.sql            link an Auth user to a restaurant
+    platform-admin-setup.sql      grant platform Store Management access
     menu-data.mjs                 editable source for the seed menu
     generate-seed.mjs             menu-data.mjs -> seed.sql
     seed.sql                      generated sample data

@@ -388,8 +388,19 @@ create table if not exists public.restaurant_members (
   primary key (restaurant_id, user_id)
 );
 
+-- Platform administrators manage the restaurant/store accounts themselves.
+-- There is intentionally no client-side write policy: the first platform
+-- administrator is bootstrapped with platform-admin-setup.sql, and all later
+-- management writes use the server-only Supabase secret key after verifying
+-- that the signed-in caller appears in this table.
+create table if not exists public.platform_admins (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 alter table public.restaurant_members enable row level security;
 alter table public.restaurant_translations enable row level security;
+alter table public.platform_admins enable row level security;
 
 -- The one question every write policy asks. SECURITY DEFINER so it can read
 -- restaurant_members without re-triggering that table's own policy, which
@@ -506,6 +517,12 @@ create policy restaurant_translations_read on public.restaurant_translations
 drop policy if exists restaurant_members_read on public.restaurant_members;
 create policy restaurant_members_read on public.restaurant_members
   for select using (user_id = auth.uid());
+
+drop policy if exists platform_admins_read_own on public.platform_admins;
+create policy platform_admins_read_own on public.platform_admins
+  for select to authenticated using (user_id = auth.uid());
+
+grant select on public.platform_admins to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Writing

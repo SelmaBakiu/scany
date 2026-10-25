@@ -107,7 +107,7 @@ export async function signIn(_prev: ActionResult, form: FormData): Promise<Actio
   if (error) return fail("badCredentials");
 
   const next = text(form, "next");
-  redirect(next.startsWith("/admin") ? next : "/admin/items");
+  redirect(next.startsWith("/admin") || next.startsWith("/management") ? next : "/admin/items");
 }
 
 export async function signOut(): Promise<void> {

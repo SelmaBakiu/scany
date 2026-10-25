@@ -8,8 +8,9 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * secret. Supabase calls it the "publishable" key on new projects
  * (sb_publishable_…) and the legacy "anon" key on older ones; both work.
  *
- * Never put the secret / `service_role` key in this project: it bypasses RLS
- * entirely, and anything prefixed NEXT_PUBLIC_ is shipped to the browser.
+ * Never expose the secret / `service_role` key through this client or a
+ * NEXT_PUBLIC_ variable. Store Management uses it only from server-side code
+ * in admin.ts, because it bypasses RLS entirely.
  *
  * Returns null when the environment is not configured yet, so the page can
  * render a setup screen instead of a stack trace.

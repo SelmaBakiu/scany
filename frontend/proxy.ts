@@ -12,7 +12,7 @@ import { NextResponse, type NextRequest } from "next/server";
  *    response. Server components cannot set cookies, so without this a
  *    merchant gets signed out the moment their token expires mid-session.
  *
- * 2. Bounce anyone without a session away from /admin.
+ * 2. Bounce anyone without a session away from /admin and /management.
  *
  * Point 2 is convenience, not security. The real protection is in the database:
  * every write policy in schema.sql checks membership, so a forged cookie or a
@@ -52,8 +52,9 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isLoginPage = pathname === "/admin/login";
+  const isProtectedPage = pathname.startsWith("/admin") || pathname.startsWith("/management");
 
-  if (pathname.startsWith("/admin") && !isLoginPage && !user) {
+  if (isProtectedPage && !isLoginPage && !user) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/admin/login";
     // Remember where they were headed so sign-in can finish the journey.
@@ -63,7 +64,8 @@ export async function proxy(request: NextRequest) {
 
   if (isLoginPage && user) {
     const redirect = request.nextUrl.clone();
-    redirect.pathname = "/admin/items";
+    const requested = request.nextUrl.searchParams.get("next");
+    redirect.pathname = requested?.startsWith("/management") ? requested : "/admin/items";
     redirect.search = "";
     return NextResponse.redirect(redirect);
   }

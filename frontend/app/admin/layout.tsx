@@ -44,7 +44,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             // page; everything else is middleware's job.
             children
           ) : context.status === "ok" ? (
-            <AdminShell restaurant={context.data.restaurant}>{children}</AdminShell>
+            <AdminShell
+              restaurant={context.data.restaurant}
+              isPlatformAdmin={context.isPlatformAdmin}
+            >
+              {children}
+            </AdminShell>
           ) : (
             <AdminSetupNotice
               status={context.status}
