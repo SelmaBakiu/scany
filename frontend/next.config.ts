@@ -78,6 +78,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseImageHosts(),
   },
+
+  experimental: {
+    agentUpgrade: "security",
+  },
 };
 
 export default nextConfig;
