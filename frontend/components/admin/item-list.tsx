@@ -2,15 +2,60 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { deleteItem, duplicateItem } from "@/app/admin/actions";
-import type { AdminData } from "@/lib/admin-types";
+import { useMemo, useState, useTransition } from "react";
+import { deleteItem, duplicateItem, generateItemImage } from "@/app/admin/actions";
+import { NO_RESULT, type ActionResult, type AdminData } from "@/lib/admin-types";
 import { formatMinor } from "@/lib/money";
 import { normalize } from "@/lib/i18n";
 import { adminName } from "@/lib/admin-i18n";
-import { PlatePlaceholder, SearchIcon } from "../icons";
+import { PlatePlaceholder, SearchIcon, SparkIcon } from "../icons";
 import { useAdminLocale, useAdminStrings } from "./admin-locale";
-import { ConfirmSubmit, Field, GhostButton, Select } from "./ui";
+import { ConfirmSubmit, Field, GhostButton, Select, StatusMessage } from "./ui";
+
+/**
+ * The row-sized cousin of AiImageButton: same server action, no big preview.
+ *
+ * The new picture is handed up via `onImage` so the row's thumbnail swaps
+ * immediately instead of waiting for the revalidated list. Only failures get a
+ * status line — on success the changed thumbnail IS the confirmation, and the
+ * prompt the action returns as `detail` would be noise in a list.
+ */
+function RowAiImageButton({
+  itemId,
+  onImage,
+}: {
+  itemId: string;
+  onImage: (url: string) => void;
+}) {
+  const t = useAdminStrings();
+  const [pending, startTransition] = useTransition();
+  const [result, setResult] = useState<ActionResult>(NO_RESULT);
+
+  function generate() {
+    setResult(NO_RESULT);
+    startTransition(async () => {
+      const next = await generateItemImage(itemId);
+      if (next.imageUrl) onImage(next.imageUrl);
+      if (!next.ok) setResult(next);
+    });
+  }
+
+  return (
+    <>
+      <GhostButton
+        type="button"
+        onClick={generate}
+        disabled={pending}
+        title={t.generateImageHint}
+        aria-busy={pending}
+      >
+        <SparkIcon className={pending ? "animate-pulse" : undefined} />
+        {pending ? t.generatingImage : t.generateImage}
+      </GhostButton>
+      <StatusMessage state={result} />
+    </>
+  );
+}
 
 /** The "new dish" button in the page heading. Here so the label translates. */
 export function NewItemLink() {
@@ -37,6 +82,8 @@ export function ItemList({ data }: { data: AdminData }) {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState("");
+  // Freshly generated pictures, keyed by item id, shown until the list reloads.
+  const [generated, setGenerated] = useState<Record<string, string>>({});
 
   const categoryName = useMemo(() => {
     const map = new Map<string, string>();
@@ -137,8 +184,14 @@ export function ItemList({ data }: { data: AdminData }) {
             className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-3"
           >
             <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-tint">
-              {item.imageUrl ? (
-                <Image src={item.imageUrl} alt="" fill sizes="56px" className="object-cover" />
+              {(generated[item.id] ?? item.imageUrl) ? (
+                <Image
+                  src={(generated[item.id] ?? item.imageUrl)!}
+                  alt=""
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-faint">
                   <PlatePlaceholder className="size-6" variant={index} />
@@ -171,6 +224,11 @@ export function ItemList({ data }: { data: AdminData }) {
               >
                 {t.edit}
               </Link>
+
+              <RowAiImageButton
+                itemId={item.id}
+                onImage={(url) => setGenerated((prev) => ({ ...prev, [item.id]: url }))}
+              />
 
               <form action={duplicateItem}>
                 <input type="hidden" name="id" value={item.id} />
