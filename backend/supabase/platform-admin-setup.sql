@@ -9,7 +9,7 @@
 insert into public.platform_admins (user_id)
 select id
 from auth.users
-where email = 'admin@example.com' -- <- REPLACE with the platform admin email
+where email = 'sebak0220@uit.no' -- <- REPLACE with the platform admin email
 on conflict (user_id) do nothing;
 
 select u.email, p.created_at

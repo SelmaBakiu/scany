@@ -381,3 +381,51 @@
     animation: sheet-fade 1ms linear;
   }
 }
+
+/*
+ * Google Translate (components/google-translate.tsx). The language picker is
+ * ours, so Google's toolbar, its hover tooltips and the highlight it puts on
+ * translated text are all hidden, and the 40px it pushes the page down by is
+ * taken back.
+ */
+/*
+ * Google renames these classes between versions ("VIpgJd-…"), so naming them
+ * one by one keeps falling behind. Everything Google adds straight under
+ * <body> is chrome — the bar, the spinner, tooltips — never translated text,
+ * which lives inside the app's own elements. So: hide all of it at that level.
+ */
+body > [class*="VIpgJd-"],
+body > [id^="goog-gt-"],
+body > div[class*="goog-"],
+.goog-te-banner-frame,
+iframe.skiptranslate,
+body > .skiptranslate,
+iframe[id=":1.container"],
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-OiiCO,
+.VIpgJd-yAWNEb-L7lbkb,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-te-spinner-pos,
+.goog-tooltip {
+  display: none !important;
+}
+
+/* Google pushes the page down with an inline `top: 40px` for its bar. */
+html,
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+/* The highlight Google draws on a hovered translated sentence. */
+.VIpgJd-yAWNEb-VIpgJd-fmcmS-sn54Q {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}

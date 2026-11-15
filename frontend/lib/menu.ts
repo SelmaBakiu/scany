@@ -11,6 +11,7 @@ import type {
   Tag,
   Translated,
 } from "./types";
+import { withLiveRates } from "./exchange-rates";
 import { normalize } from "./i18n";
 import { computePriceThresholds } from "./money";
 
@@ -88,7 +89,7 @@ export async function fetchRestaurantMenu(slug: string): Promise<MenuFetchResult
   }
 
   const restaurant = restaurantResult.data as unknown as DbRestaurant;
-  const currencies = (currencyResult.data ?? []).map(toCurrency);
+  const currencies = await withLiveRates((currencyResult.data ?? []).map(toCurrency));
 
   const baseCurrency =
     currencies.find((c) => c.code === restaurant.base_currency) ??

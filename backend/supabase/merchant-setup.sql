@@ -20,7 +20,7 @@ select r.id, u.id, 'owner'
 from public.restaurants r
 cross join auth.users u
 where r.slug = 'sofra'                      -- <- which restaurant
-  and u.email = 'merchant@example.com'      -- <- REPLACE with the real email
+  and u.email = 'sebak0220@uit.no'      -- <- REPLACE with the real email
 on conflict (restaurant_id, user_id) do nothing;
 
 -- Check it worked. One row = that person can now sign in at /admin.

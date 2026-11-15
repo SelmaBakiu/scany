@@ -1,4 +1,5 @@
 import { CartProvider } from "@/components/cart-provider";
+import { GoogleTranslate } from "@/components/google-translate";
 import { PrefsProvider } from "@/components/prefs-provider";
 import { themeBootScript } from "@/lib/prefs-storage";
 import { fetchRestaurantMenu } from "@/lib/menu";
@@ -25,12 +26,14 @@ export default async function MenuLayout({ children, params }: LayoutProps<"/m/[
   const { slug } = await params;
   const result = await fetchRestaurantMenu(slug);
   const theme = result.status === "ok" ? result.data.theme : "lys";
+  const baseLocale = result.status === "ok" ? result.data.defaultLocale : "nb";
 
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: themeBootScript(theme) }} />
       <div data-theme={theme} className="flex min-h-screen flex-col bg-ground text-ink">
         <PrefsProvider restaurantSlug={slug}>
+          <GoogleTranslate baseLocale={baseLocale} />
           <CartProvider restaurantSlug={slug}>{children}</CartProvider>
         </PrefsProvider>
       </div>

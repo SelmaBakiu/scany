@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { APP_LANGUAGES } from "@/lib/i18n";
 import { storageKey } from "@/lib/prefs-storage";
 
 /**
@@ -26,6 +27,8 @@ export type StoredPrefs = {
  */
 
 type PrefsContextValue = StoredPrefs & {
+  /** True once the stored choices have been read; before that, locale is just the default. */
+  hydrated: boolean;
   setLocale: (locale: string) => void;
   setCurrency: (currency: string) => void;
 };
@@ -91,10 +94,11 @@ export function PrefsProvider({
   const value = useMemo<PrefsContextValue>(
     () => ({
       ...prefs,
+      hydrated,
       setLocale: (locale) => setPrefs((p) => ({ ...p, locale })),
       setCurrency: (currency) => setPrefs((p) => ({ ...p, currency })),
     }),
-    [prefs],
+    [prefs, hydrated],
   );
 
   return <PrefsContext.Provider value={value}>{children}</PrefsContext.Provider>;
@@ -112,10 +116,16 @@ export function usePrefs(): PrefsContextValue {
  * Turn the raw stored choices into the ones actually in effect, given what this
  * restaurant offers. A venue that drops Italian since the diner's last visit
  * should not leave them staring at a blank menu.
+ *
+ * Every app language is allowed on top of the restaurant's own: the buttons
+ * and headings are translated in code, and dishes the restaurant has not
+ * translated fall back to English, then Norwegian (see `pick`).
  */
 export function useResolvedLocale(allowed: { code: string }[], fallback: string): string {
   const { locale } = usePrefs();
-  if (locale && allowed.some((l) => l.code === locale)) return locale;
+  if (!locale) return fallback;
+  if (allowed.some((l) => l.code === locale)) return locale;
+  if (APP_LANGUAGES.some((l) => l.code === locale)) return locale;
   return fallback;
 }
 

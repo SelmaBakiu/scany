@@ -4,7 +4,9 @@ import { useState } from "react";
 import { localeBadge, type UiStrings } from "@/lib/i18n";
 import type { RestaurantMenu } from "@/lib/types";
 import { GlobeIcon } from "./icons";
-import { OptionSheet, SheetTrigger } from "./option-sheet";
+import { LanguageSheet } from "./language-sheet";
+import { CurrencySheet } from "./currency-sheet";
+import { SheetTrigger } from "./option-sheet";
 import { RestaurantInfoSheet, RestaurantInfoTrigger } from "./restaurant-info-sheet";
 import { usePrefs, useResolvedCurrency, useResolvedLocale } from "./prefs-provider";
 
@@ -58,35 +60,25 @@ export function PrefsControls({
       </div>
 
       {open === "language" ? (
-        <OptionSheet
-          title={strings.language}
-          closeLabel={strings.close}
+        <LanguageSheet
           value={locale}
+          restaurantLocales={restaurant.locales}
+          defaultLocale={restaurant.defaultLocale}
+          strings={strings}
           onChange={setLocale}
           onClose={close}
-          options={restaurant.locales.map((l) => ({
-            value: l.code,
-            label: l.native_label,
-            hint: l.label,
-          }))}
         />
       ) : null}
 
       {open === "currency" ? (
-        <OptionSheet
-          title={strings.currency}
-          closeLabel={strings.close}
+        <CurrencySheet
           value={currency.code}
+          currencies={restaurant.currencies}
+          baseCode={restaurant.baseCurrency.code}
+          locale={locale}
+          strings={strings}
           onChange={setCurrency}
           onClose={close}
-          options={restaurant.currencies.map((c) => ({
-            value: c.code,
-            label: c.code,
-            hint:
-              c.code === restaurant.baseCurrency.code
-                ? c.symbol
-                : `${c.symbol} · ${strings.approxNote(c.code, restaurant.baseCurrency.code)}`,
-          }))}
         />
       ) : null}
 
