@@ -37,7 +37,7 @@ export function RestaurantInfoSheet({
         <div className="flex items-center gap-4">
           {info.logoUrl ? (
             <span className="relative size-16 shrink-0 overflow-hidden rounded-2xl border border-line bg-tint">
-              <Image src={info.logoUrl} alt="" fill sizes="64px" className="object-contain p-1.5" />
+              <Image src={info.logoUrl} alt="" fill sizes="64px" className="object-cover" />
             </span>
           ) : null}
           <div className="min-w-0">

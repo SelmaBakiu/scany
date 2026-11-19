@@ -221,7 +221,6 @@ export function ItemDetail({
                 ) : (
                   <p className="mt-2 text-[15px] text-muted">{strings.noAllergens}</p>
                 )}
-                <p className="mt-3 max-w-[60ch] text-[13px] text-muted">{strings.allergenNote}</p>
               </section>
 
               <div className="mt-8">

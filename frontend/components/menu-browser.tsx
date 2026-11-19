@@ -279,11 +279,6 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
         </div>
       </main>
 
-      <footer className="mt-7 border-t border-line bg-surface">
-        <div className="mx-auto flex max-w-[77.5rem] flex-wrap items-center justify-between gap-3.5 px-5 py-6 md:px-8">
-          <p className="max-w-[60ch] text-[13px] text-muted">{strings.allergenNote}</p>
-        </div>
-      </footer>
 
       {filtersOpen ? (
         <FilterPanel

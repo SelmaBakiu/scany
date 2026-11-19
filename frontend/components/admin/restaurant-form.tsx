@@ -30,7 +30,7 @@ export function RestaurantForm({ restaurant }: { restaurant: AdminRestaurant }) 
                   alt=""
                   fill
                   sizes="96px"
-                  className="object-contain p-2"
+                  className="object-cover"
                 />
               ) : (
                 <span className="flex h-full w-full items-center justify-center text-[13px] text-muted">

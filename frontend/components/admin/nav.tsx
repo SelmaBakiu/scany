@@ -14,7 +14,9 @@ const SECTIONS: { href: string; key: AdminTextKey; badge?: "newOrders" }[] = [
   { href: "/admin/menus", key: "navMenus" },
   { href: "/admin/theme", key: "navTheme" },
   { href: "/admin/restaurant", key: "navRestaurant" },
-  { href: "/admin/qr", key: "navQr" },
+  // QR codes hidden for now — the page redirects too. Put this line back to
+  // bring it back.
+  // { href: "/admin/qr", key: "navQr" },
 ];
 
 /**
