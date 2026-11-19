@@ -96,7 +96,7 @@ git log --stat -1 | grep -i "\.env" || echo "no env files committed — good"
 
 3. **Deploy.** Two or three minutes.
 
-4. Open `https://<your-app>.vercel.app/m/sofra`. You should see the menu.
+4. Open `https://<your-app>.vercel.app/m/tromso-local-food`. You should see the menu.
    Then `/admin` and sign in with the account from step 1.4. Open
    `/management/stores` to manage stores and owner credentials.
 

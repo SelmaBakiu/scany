@@ -8,6 +8,6 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000/m/sofra`. Database schema, seed data, migrations, and SQL tests live in `../backend`.
+Open `http://localhost:3000/m/tromso-local-food`. Database schema, seed data, migrations, and SQL tests live in `../backend`.
 
 From the repository root, the same server can be started with `npm run dev`.

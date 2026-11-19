@@ -26,12 +26,12 @@ const FONT_HREF =
  */
 export const metadata: Metadata = {
   title: {
-    default: "Tromsø Restaurant",
-    template: "%s — Tromsø Restaurant",
+    default: "Tromsø Local Food",
+    template: "%s — Tromsø Local Food",
   },
   description: "Scan the code on your table, read the menu in your language, and order.",
   openGraph: {
-    title: "Tromsø Restaurant",
+    title: "Tromsø Local Food",
     description: "Scan the code on your table, read the menu in your language, and order.",
     type: "website",
   },

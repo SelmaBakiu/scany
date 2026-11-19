@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createSupabaseServerClient } from "./supabase/server";
 import { emptyWeek, type AdminData, type AdminItemText } from "./admin-types";
 import type { Translated } from "./types";
@@ -24,28 +25,31 @@ export type MerchantContext =
  * this merchant's rows. If the policies were wrong, adding a `.eq()` here
  * would hide the bug rather than fix it.
  */
-export async function getMerchantContext(): Promise<MerchantContext> {
+/**
+ * Wrapped in React's cache(): the admin layout and the page both call this on
+ * every navigation, and without it each click did the whole load twice.
+ */
+export const getMerchantContext = cache(loadMerchantContext);
+
+async function loadMerchantContext(): Promise<MerchantContext> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { status: "not-configured" };
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { status: "signed-out" };
+  // getClaims(), not getUser(): proxy.ts has already checked the session with
+  // Supabase on this request, and getClaims verifies the token's signature
+  // locally instead of making another round trip to the auth server.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims;
+  if (!claims?.sub) return { status: "signed-out" };
 
-  const email = user.email ?? "";
+  const userId = claims.sub;
+  const email = typeof claims.email === "string" ? claims.email : "";
 
-  const { data: platformAdmin } = await supabase
-    .from("platform_admins")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  const { data: membership, error: membershipError } = await supabase
-    .from("restaurant_members")
-    .select("restaurant_id")
-    .limit(1)
-    .maybeSingle();
+  // Independent of each other, so ask for both at once.
+  const [{ data: platformAdmin }, { data: membership, error: membershipError }] = await Promise.all([
+    supabase.from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle(),
+    supabase.from("restaurant_members").select("restaurant_id").limit(1).maybeSingle(),
+  ]);
 
   if (membershipError) return { status: "error", message: membershipError.message };
   if (!membership) return { status: "no-restaurant", email };

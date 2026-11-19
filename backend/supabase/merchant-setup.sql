@@ -19,7 +19,7 @@ insert into public.restaurant_members (restaurant_id, user_id, role)
 select r.id, u.id, 'owner'
 from public.restaurants r
 cross join auth.users u
-where r.slug = 'sofra'                      -- <- which restaurant
+where r.slug = 'tromso-local-food'                      -- <- which restaurant
   and u.email = 'sebak0220@uit.no'      -- <- REPLACE with the real email
 on conflict (restaurant_id, user_id) do nothing;
 

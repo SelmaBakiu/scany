@@ -173,7 +173,7 @@ w(`select r.id, 'dinner', 0, true from public.restaurants r where r.slug = ${q(R
 w("on conflict (restaurant_id, slug) do update set is_active = excluded.is_active;");
 w();
 
-const MENU_NAMES = { nb: "Meny", en: "Menu", sq: "Menu", it: "Menu" };
+const MENU_NAMES = { nb: "Meny", en: "Menu", sq: "Menu", it: "Menu", "zh-CN": "菜单" };
 w("insert into public.menu_translations (menu_id, locale, name)");
 w("select m.id, v.locale, v.name");
 w("from (values");

@@ -48,7 +48,7 @@ type CartValue = {
 const CartContext = createContext<CartValue | null>(null);
 
 /**
- * The table number out of the QR link: /m/sofra?table=5
+ * The table number out of the QR link: /m/tromso-local-food?table=5
  *
  * Read from `window.location` rather than with `useSearchParams`, which forces
  * the whole subtree out of static rendering and needs a Suspense boundary.

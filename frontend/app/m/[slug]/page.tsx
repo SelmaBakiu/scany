@@ -4,7 +4,7 @@ import { MenuBrowser } from "@/components/menu-browser";
 import { SetupNotice } from "@/components/setup-notice";
 
 /**
- * The page a QR code points at: /m/sofra
+ * The page a QR code points at: /m/tromso-local-food
  *
  * This is a SERVER component. It runs the database query on the server and
  * sends finished HTML, so a diner's phone gets the menu in the first response
@@ -81,7 +81,7 @@ export default async function MenuPage({ params }: PageProps<"/m/[slug]">) {
         title={`No published menu at “${slug}”`}
         detail="Either no restaurant has that slug, or it exists but is_published is still false — row level security makes those two cases look identical from outside, on purpose."
         steps={[
-          "Run backend/supabase/seed.sql to create the sample restaurant, then open /m/sofra.",
+          "Run backend/supabase/seed.sql to create the sample restaurant, then open /m/tromso-local-food.",
           "Or set is_published = true on your own row in the restaurants table.",
         ]}
       />

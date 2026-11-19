@@ -31,7 +31,7 @@ declare
   n          integer;
   ok         boolean;
 begin
-  select id into rid from public.restaurants where slug = 'sofra';
+  select id into rid from public.restaurants where slug = 'tromso-local-food';
   select id into owner_id from auth.users where email = 'owner@test.no';
   select id into stranger_id from auth.users where email = 'stranger@test.no';
 
@@ -128,7 +128,7 @@ declare
   n   integer;
 begin
   set local role postgres;
-  select id into rid from public.restaurants where slug = 'sofra';
+  select id into rid from public.restaurants where slug = 'tromso-local-food';
 
   -- Exactly one menu may be active.
   begin

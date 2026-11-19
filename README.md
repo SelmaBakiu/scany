@@ -2,7 +2,7 @@
 
 Two halves of one app, sharing one database.
 
-**The diner's menu** (`/m/sofra?table=5`) — the page reached by scanning the QR
+**The diner's menu** (`/m/tromso-local-food?table=5`) — the page reached by scanning the QR
 code on the table: read the menu, search it, filter it, open a dish, switch
 language and currency, see the restaurant's details — and **order**. Build a
 basket, send it, and watch the kitchen's progress live. No account, no app.
@@ -41,10 +41,10 @@ The repository is split by responsibility:
 ```bash
 npm --prefix frontend install
 cp frontend/.env.local.example frontend/.env.local  # then fill in the three values
-npm run dev                                        # http://localhost:3000/m/sofra
+npm run dev                                        # http://localhost:3000/m/tromso-local-food
 ```
 
-Until Supabase is configured, `/m/sofra` shows a setup screen instead of a menu
+Until Supabase is configured, `/m/tromso-local-food` shows a setup screen instead of a menu
 — that is deliberate, not a crash.
 
 ### 1. Create the database
@@ -65,11 +65,11 @@ Until Supabase is configured, `/m/sofra` shows a setup screen instead of a menu
 3. **SQL Editor → New query**. Paste the *contents* of `backend/supabase/schema.sql`
    (not its filename) and run it.
 4. New query again, paste `backend/supabase/seed.sql`, run it. That creates the sample
-   restaurant with the slug `sofra`.
+   restaurant with the slug `tromso-local-food`.
 5. **Database → Replication → `supabase_realtime`**, tick `orders`. This is
    what makes orders appear instantly rather than on the next poll; `schema.sql`
    tries to do it for you and carries on quietly if it cannot.
-6. `npm run dev` and open `http://localhost:3000/m/sofra`.
+6. `npm run dev` and open `http://localhost:3000/m/tromso-local-food`.
 
 Both SQL files are safe to re-run — every statement is guarded, so you can
 iterate without dropping the database.

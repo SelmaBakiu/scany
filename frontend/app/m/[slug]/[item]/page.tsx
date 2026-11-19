@@ -5,7 +5,7 @@ import { ItemDetail } from "@/components/item-detail";
 import { SetupNotice } from "@/components/setup-notice";
 
 /**
- * One dish, at /m/sofra/margherita.
+ * One dish, at /m/tromso-local-food/fiskekaker-3.
  *
  * Server-rendered from the same single query as the menu page — and cached the
  * same way, so a diner tapping through four dishes costs no extra database

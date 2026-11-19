@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Runs before every page renders. (Next.js 16 calls this file "proxy"; it was
+ * Runs before every /admin and /management page renders. (Next.js 16 calls this file "proxy"; it was
  * called "middleware" until 16.4 and the old name now logs a deprecation
  * warning, so the file and the export were renamed. Nothing else changed.)
  *
@@ -21,6 +21,14 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  const { pathname } = request.nextUrl;
+  const isLoginPage = pathname === "/admin/login";
+  const isProtectedPage = pathname.startsWith("/admin") || pathname.startsWith("/management");
+
+  // Only the admin and management areas use a session. The diner's menu has
+  // no login, so it skips the auth round trip entirely.
+  if (!isProtectedPage) return response;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -44,17 +52,14 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  // getUser(), not getSession(): it verifies the token with Supabase rather
-  // than trusting whatever the cookie claims.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims(), not getSession(): it verifies the token's signature rather
+  // than trusting whatever the cookie claims, refreshing it when it has
+  // expired — but without the network round trip getUser() makes on every
+  // single click.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? data.claims : null;
 
-  const { pathname } = request.nextUrl;
-  const isLoginPage = pathname === "/admin/login";
-  const isProtectedPage = pathname.startsWith("/admin") || pathname.startsWith("/management");
-
-  if (isProtectedPage && !isLoginPage && !user) {
+  if (!isLoginPage && !user) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/admin/login";
     // Remember where they were headed so sign-in can finish the journey.
@@ -74,7 +79,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except static assets. The diner's menu passes straight through,
-  // but it still needs the session refresh above to run on admin navigations.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Only the areas behind a login. Everything else never reaches this file.
+  matcher: ["/admin/:path*", "/management/:path*"],
 };

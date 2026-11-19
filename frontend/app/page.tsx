@@ -29,10 +29,10 @@ export default function Home() {
           Sample menu
         </h2>
         <Link
-          href="/m/sofra"
+          href="/m/tromso-local-food"
           className="mt-3 inline-flex h-11 items-center rounded-full bg-accent px-5 text-[15px] font-semibold text-surface no-underline hover:bg-accent-strong"
         >
-          Open /m/sofra
+          Open /m/tromso-local-food
         </Link>
         {!configured ? (
           <p className="mt-4 text-sm leading-relaxed text-muted">

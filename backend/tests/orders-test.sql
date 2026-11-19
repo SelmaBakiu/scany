@@ -41,7 +41,7 @@ declare
   n           integer;
   numbers     integer[];
 begin
-  select id into rid from public.restaurants where slug = 'sofra';
+  select id into rid from public.restaurants where slug = 'tromso-local-food';
   select id into owner_id from auth.users where email = 'owner@test.no';
   select id into stranger_id from auth.users where email = 'stranger@test.no';
 
@@ -64,7 +64,7 @@ begin
 
   -- The browser claims these cost 1 øre each. It does not get to decide.
   select * into res from public.place_order(
-    'sofra', '5', 'Selma', 'ingen hast',
+    'tromso-local-food', '5', 'Selma', 'ingen hast',
     jsonb_build_array(
       jsonb_build_object('item_id', cheap_item, 'quantity', 2, 'price_minor', 1, 'price', 1),
       jsonb_build_object('item_id', other_item, 'quantity', 1, 'price_minor', 1)
@@ -104,34 +104,34 @@ begin
   -- ============================================== WHAT MUST BE REFUSED
   set local role anon;
   begin
-    perform public.place_order('sofra', '5', '', '', '[]'::jsonb);
+    perform public.place_order('tromso-local-food', '5', '', '', '[]'::jsonb);
     raise exception 'AN EMPTY ORDER WAS ACCEPTED';
   exception when sqlstate 'P0001' then null;
   end;
 
   begin
-    perform public.place_order('sofra', '   ', '', '',
+    perform public.place_order('tromso-local-food', '   ', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
     raise exception 'AN ORDER WITH NO TABLE NUMBER WAS ACCEPTED';
   exception when sqlstate 'P0001' then null;
   end;
 
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 0)));
     raise exception 'A ZERO QUANTITY WAS ACCEPTED';
   exception when sqlstate 'P0001' then null;
   end;
 
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 500)));
     raise exception 'A 500-PORTION ORDER WAS ACCEPTED';
   exception when sqlstate 'P0001' then null;
   end;
 
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', gen_random_uuid(), 'quantity', 1)));
     raise exception 'AN ORDER FOR A DISH THAT DOES NOT EXIST WAS ACCEPTED';
   exception when sqlstate 'P0002' then null;
@@ -149,7 +149,7 @@ begin
   update public.items set is_available = false where id = sold_out;
   set local role anon;
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', sold_out, 'quantity', 1)));
     raise exception 'A SOLD-OUT DISH WAS ORDERED';
   exception when sqlstate 'P0001' then null;
@@ -167,7 +167,7 @@ begin
   update public.restaurants set ordering_enabled = false where id = rid;
   set local role anon;
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
     raise exception 'AN ORDER WAS TAKEN WITH ORDERING SWITCHED OFF';
   exception when sqlstate 'P0001' then null;
@@ -180,7 +180,7 @@ begin
   update public.restaurants set is_published = false where id = rid;
   set local role anon;
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
     raise exception 'AN UNPUBLISHED RESTAURANT TOOK AN ORDER';
   exception when sqlstate 'P0001' then null;
@@ -199,7 +199,7 @@ begin
 
   set local role anon;
   begin
-    perform public.place_order('sofra', '5', '', '',
+    perform public.place_order('tromso-local-food', '5', '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
     raise exception 'AN ORDER WAS TAKEN OUTSIDE OPENING HOURS';
   exception when sqlstate 'P0001' then null;
@@ -268,7 +268,7 @@ begin
 
   -- A second guest's order must not be reachable with the first one's token.
   select * into res2 from public.place_order(
-    'sofra', '9', '', '',
+    'tromso-local-food', '9', '', '',
     jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
   tok2 := res2.token;
 
@@ -362,7 +362,7 @@ begin
   numbers := array[]::integer[];
   for n in 1..12 loop
     select * into res2 from public.place_order(
-      'sofra', (100 + n)::text, '', '',
+      'tromso-local-food', (100 + n)::text, '', '',
       jsonb_build_array(jsonb_build_object('item_id', cheap_item, 'quantity', 1)));
     numbers := numbers || res2.order_number;
   end loop;
