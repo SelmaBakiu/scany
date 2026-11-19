@@ -41,7 +41,6 @@ export type UiStrings = {
   houseFavourite: string;
   approxNote: (code: string, base: string) => string;
   allergenNote: string;
-  orderWithServer: string;
   showResults: (n: number) => string;
   done: string;
   close: string;
@@ -168,7 +167,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} omregnet fra ${base}`,
     allergenNote:
       "Prisene inkluderer mva. Fullstendig allergeninformasjon fås på forespørsel — si fra til servitøren om allergier før du bestiller.",
-    orderWithServer: "Bestill hos servitøren når du er klar.",
     showResults: (n) => `Vis ${n} retter`,
     done: "Ferdig",
     close: "Lukk",
@@ -278,7 +276,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} converted from ${base}`,
     allergenNote:
       "Prices include VAT. Full allergen information is available on request — please tell your server about any allergies before ordering.",
-    orderWithServer: "Order with your server when you are ready.",
     showResults: (n) => `Show ${n} dishes`,
     done: "Done",
     close: "Close",
@@ -388,7 +385,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} convertito da ${base}`,
     allergenNote:
       "Prezzi IVA inclusa. Le informazioni complete sugli allergeni sono disponibili su richiesta — comunica al personale eventuali allergie prima di ordinare.",
-    orderWithServer: "Ordina al personale quando sei pronto.",
     showResults: (n) => `Mostra ${n} piatti`,
     done: "Fatto",
     close: "Chiudi",
@@ -497,7 +493,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     houseFavourite: "招牌推荐",
     approxNote: (target, base) => `${target} 按 ${base} 折算`,
     allergenNote: "如有过敏或饮食禁忌，请告知服务员。厨房无法保证完全无交叉接触。",
-    orderWithServer: "扫码点餐，或请服务员协助。",
     showResults: (n) => `查看 ${n} 道菜`,
     done: "完成",
     close: "关闭",
@@ -607,7 +602,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} omräknat från ${base}`,
     allergenNote:
       "Priserna inkluderar moms. Fullständig allergeninformation finns på begäran — berätta för personalen om eventuella allergier innan du beställer.",
-    orderWithServer: "Beställ hos personalen när du är redo.",
     showResults: (n) => `Visa ${n} rätter`,
     done: "Klar",
     close: "Stäng",
@@ -717,7 +711,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} omregnet fra ${base}`,
     allergenNote:
       "Priserne er inkl. moms. Fuld allergeninformation fås på forespørgsel — fortæl personalet om eventuelle allergier, før du bestiller.",
-    orderWithServer: "Bestil hos personalet, når du er klar.",
     showResults: (n) => `Vis ${n} retter`,
     done: "Færdig",
     close: "Luk",
@@ -827,7 +820,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} umgerechnet aus ${base}`,
     allergenNote:
       "Alle Preise inkl. MwSt. Vollständige Allergeninformationen auf Anfrage — bitte informiere das Personal vor der Bestellung über Allergien.",
-    orderWithServer: "Bestelle beim Personal, wenn du so weit bist.",
     showResults: (n) => `${n} Gerichte anzeigen`,
     done: "Fertig",
     close: "Schließen",
@@ -937,7 +929,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} converti depuis ${base}`,
     allergenNote:
       "Prix TTC. Les informations complètes sur les allergènes sont disponibles sur demande — signalez toute allergie au personnel avant de commander.",
-    orderWithServer: "Commandez auprès du personnel quand vous êtes prêt.",
     showResults: (n) => `Voir ${n} plats`,
     done: "Terminé",
     close: "Fermer",
@@ -1047,7 +1038,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} convertido desde ${base}`,
     allergenNote:
       "Precios con IVA incluido. Información completa sobre alérgenos disponible bajo petición: informa al personal de cualquier alergia antes de pedir.",
-    orderWithServer: "Pide al personal cuando estés listo.",
     showResults: (n) => `Ver ${n} platos`,
     done: "Listo",
     close: "Cerrar",
@@ -1157,7 +1147,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code} przeliczone z ${base}`,
     allergenNote:
       "Ceny zawierają VAT. Pełne informacje o alergenach dostępne na życzenie — przed zamówieniem poinformuj obsługę o alergiach.",
-    orderWithServer: "Złóż zamówienie u obsługi, gdy będziesz gotowy.",
     showResults: (n) => `Pokaż ${n} ${plPlural(n, "danie", "dania", "dań")}`,
     done: "Gotowe",
     close: "Zamknij",
@@ -1267,7 +1256,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code}, перераховано з ${base}`,
     allergenNote:
       "Ціни включають ПДВ. Повна інформація про алергени — на запит. Повідомте персонал про алергії перед замовленням.",
-    orderWithServer: "Замовте в офіціанта, коли будете готові.",
     showResults: (n) => `Показати ${n} ${ukPlural(n, "страву", "страви", "страв")}`,
     done: "Готово",
     close: "Закрити",
@@ -1377,7 +1365,6 @@ export const UI_STRINGS: Record<string, UiStrings> = {
     approxNote: (code, base) => `${code}（${base} から換算）`,
     allergenNote:
       "価格は税込です。アレルゲンの詳細はお問い合わせください。アレルギーがある場合はご注文前にスタッフにお知らせください。",
-    orderWithServer: "ご注文の準備ができたらスタッフにお声がけください。",
     showResults: (n) => `${n} 品を表示`,
     done: "完了",
     close: "閉じる",

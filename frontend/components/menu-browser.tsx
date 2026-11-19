@@ -159,10 +159,6 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
               </span>
             </div>
 
-            <p className="mt-3 hidden max-w-[52ch] text-base leading-relaxed text-muted md:block">
-              {strings.orderWithServer}
-            </p>
-
             {/* Plain wrapping text, not a fixed-height chip: in Norwegian this
                 reads "EUR omregnet fra NOK" and a chip would overflow. */}
             {/* Only for a kitchen that takes orders but is outside its hours.
