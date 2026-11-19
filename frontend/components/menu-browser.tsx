@@ -165,7 +165,9 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
 
             {/* Plain wrapping text, not a fixed-height chip: in Norwegian this
                 reads "EUR omregnet fra NOK" and a chip would overflow. */}
-            {orderingOpen === false ? (
+            {/* Only for a kitchen that takes orders but is outside its hours.
+                With ordering switched off it is simply a menu — nothing to explain. */}
+            {orderingOpen === false && restaurant.orderingEnabled ? (
               <div className="mt-3 md:mt-4">
                 <OrderingClosedNote strings={strings} />
               </div>
