@@ -36,6 +36,7 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const strings = uiStrings(locale);
+  const description = pick(restaurant.info.descriptions, locale).trim();
   const tags = useMemo(() => collectTags(restaurant.menu), [restaurant.menu]);
 
   const { categories, matchCount, totalCount } = useMemo(
@@ -159,6 +160,14 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
               </span>
             </div>
 
+            {/* The restaurant's own description, edited under Admin → Restaurant.
+                Hidden when there is none for this language. */}
+            {description ? (
+              <p className="mt-2 max-w-[65ch] text-[14px] leading-relaxed text-muted md:mt-3 md:text-base">
+                {description}
+              </p>
+            ) : null}
+
             {/* Plain wrapping text, not a fixed-height chip: in Norwegian this
                 reads "EUR omregnet fra NOK" and a chip would overflow. */}
             {/* Only for a kitchen that takes orders but is outside its hours.
@@ -183,7 +192,7 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
             className="sticky top-[4.25rem] z-20 border-b border-line bg-ground md:top-[4.5rem]"
           >
             <div className="mx-auto max-w-[77.5rem] px-5 py-3 md:px-8 md:py-3.5">
-              <div className="flex gap-2 overflow-x-auto pb-0.5">
+              <div className="no-scrollbar flex gap-2 overflow-x-auto">
                 {categories.map((category) => (
                   <a
                     key={category.id}

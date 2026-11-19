@@ -429,3 +429,15 @@ body {
   background: none !important;
   box-shadow: none !important;
 }
+
+/*
+ * Still scrolls sideways (touch, trackpad, shift+wheel), just without the bar.
+ * Used on the category pills under the menu header.
+ */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
