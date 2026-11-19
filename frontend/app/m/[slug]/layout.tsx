@@ -27,12 +27,13 @@ export default async function MenuLayout({ children, params }: LayoutProps<"/m/[
   const result = await fetchRestaurantMenu(slug);
   const theme = result.status === "ok" ? result.data.theme : "lys";
   const baseLocale = result.status === "ok" ? result.data.defaultLocale : "nb";
+  const localeCodes = result.status === "ok" ? result.data.locales.map((l) => l.code) : [];
 
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: themeBootScript(theme) }} />
       <div data-theme={theme} className="flex min-h-screen flex-col bg-ground text-ink">
-        <PrefsProvider restaurantSlug={slug}>
+        <PrefsProvider restaurantSlug={slug} restaurantLocales={localeCodes}>
           <GoogleTranslate baseLocale={baseLocale} />
           <CartProvider restaurantSlug={slug}>{children}</CartProvider>
         </PrefsProvider>

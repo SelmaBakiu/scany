@@ -37,12 +37,24 @@ const PrefsContext = createContext<PrefsContextValue | null>(null);
 
 export function PrefsProvider({
   restaurantSlug,
+  restaurantLocales = [],
   children,
 }: {
   restaurantSlug: string;
+  /** The restaurant's own languages, preferred over machine-translated ones. */
+  restaurantLocales?: string[];
   children: React.ReactNode;
 }) {
   const [prefs, setPrefs] = useState<StoredPrefs>({ locale: null, currency: null });
+
+  /**
+   * The browser's language, used only while the guest has not picked one.
+   * Kept apart from `prefs` on purpose: it is never written to storage, so a
+   * guest who later picks a language by hand keeps that choice, and one who
+   * never picks always follows their own phone's setting.
+   */
+  const [browserLocale, setBrowserLocale] = useState<string | null>(null);
+  const localeKey = restaurantLocales.join("|");
 
   /**
    * Whether the stored choices have been read yet.
@@ -75,10 +87,20 @@ export function PrefsProvider({
       locale: typeof stored.locale === "string" ? stored.locale : current.locale,
       currency: typeof stored.currency === "string" ? stored.currency : current.currency,
     }));
+    setBrowserLocale(
+      detectBrowserLocale(
+        typeof navigator !== "undefined"
+          ? navigator.languages?.length
+            ? navigator.languages
+            : [navigator.language]
+          : [],
+        localeKey ? localeKey.split("|") : [],
+      ),
+    );
     // Set on every path, including the failures above — otherwise a diner with
     // no stored preferences could never save one.
     setHydrated(true);
-  }, [restaurantSlug]);
+  }, [restaurantSlug, localeKey]);
 
   // Write them back, and keep <html data-theme> in step. One effect, because
   // the DOM attribute and the stored value must never disagree.
@@ -94,11 +116,13 @@ export function PrefsProvider({
   const value = useMemo<PrefsContextValue>(
     () => ({
       ...prefs,
+      // What the guest picked wins; otherwise their browser's language.
+      locale: prefs.locale ?? browserLocale,
       hydrated,
       setLocale: (locale) => setPrefs((p) => ({ ...p, locale })),
       setCurrency: (currency) => setPrefs((p) => ({ ...p, currency })),
     }),
-    [prefs, hydrated],
+    [prefs, browserLocale, hydrated],
   );
 
   return <PrefsContext.Provider value={value}>{children}</PrefsContext.Provider>;
@@ -142,4 +166,53 @@ export function useDocumentLanguage(locale: string): void {
   }, [locale]);
 
   useEffect(setLang, [setLang]);
+}
+
+/**
+ * The first of the browser's languages (in the guest's own order of
+ * preference) that the menu can be shown in. Restaurant languages are tried
+ * before the machine-translated app languages, so a Norwegian phone lands on
+ * the restaurant's hand-written "nb" rather than a Google translation.
+ *
+ * Matching goes exact tag first ("zh-TW"), then by primary language ("de-AT"
+ * -> "de"), with the few codes where browsers and Google disagree mapped
+ * across. Returns null when nothing fits, which leaves the restaurant default.
+ */
+export function detectBrowserLocale(
+  browserLanguages: readonly string[],
+  restaurantLocales: string[],
+): string | null {
+  const candidates = [...restaurantLocales, ...APP_LANGUAGES.map((l) => l.code)];
+  const lower = candidates.map((c) => c.toLowerCase());
+
+  for (const raw of browserLanguages) {
+    if (!raw) continue;
+    const tag = raw.toLowerCase();
+    const primary = tag.split("-")[0];
+
+    // Chinese is the one language where the region/script decides the code.
+    if (primary === "zh") {
+      const traditional = /-(tw|hk|mo|hant)/.test(tag);
+      const code = traditional ? "zh-TW" : "zh-CN";
+      if (lower.includes(code.toLowerCase())) return candidates[lower.indexOf(code.toLowerCase())];
+      continue;
+    }
+
+    const exact = lower.indexOf(tag);
+    if (exact !== -1) return candidates[exact];
+
+    const aliases: Record<string, string[]> = {
+      no: ["nb"],
+      nn: ["nb"],
+      nb: ["nb", "no"],
+      he: ["iw", "he"],
+      fil: ["tl"],
+      jv: ["jw"],
+    };
+    for (const code of aliases[primary] ?? [primary]) {
+      const index = lower.findIndex((c) => c === code || c.split("-")[0] === code);
+      if (index !== -1) return candidates[index];
+    }
+  }
+  return null;
 }

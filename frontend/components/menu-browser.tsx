@@ -262,6 +262,7 @@ export function MenuBrowser({ restaurant }: { restaurant: RestaurantMenu }) {
                       currency={currency}
                       strings={strings}
                       orderingOpen={orderingOpen}
+                      showPhotos={restaurant.showPhotos}
                     />
                   ))}
                 </div>

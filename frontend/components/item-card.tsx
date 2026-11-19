@@ -26,6 +26,7 @@ export function ItemCard({
   currency,
   strings,
   orderingOpen,
+  showPhotos = true,
 }: {
   item: MenuItem;
   index: number;
@@ -36,6 +37,8 @@ export function ItemCard({
   strings: UiStrings;
   /** Null until the client has worked out whether the kitchen is open. */
   orderingOpen: boolean | null;
+  /** The merchant's switch. Off drops the picture area entirely. */
+  showPhotos?: boolean;
 }) {
   const name = pick(item.names, locale);
   const description = pick(item.descriptions, locale);
@@ -54,6 +57,7 @@ export function ItemCard({
         item.isAvailable ? "" : "opacity-70"
       }`}
     >
+      {showPhotos ? (
       <div className="relative size-18 shrink-0 overflow-hidden rounded-xl bg-tint md:h-42 md:w-full md:rounded-none">
         {item.imageUrl ? (
           <Image
@@ -75,8 +79,9 @@ export function ItemCard({
           </span>
         ) : null}
       </div>
+      ) : null}
 
-      <div className="min-w-0 flex-1 md:p-4">
+      <div className={`min-w-0 flex-1 md:p-4 ${showPhotos ? "" : "px-1"}`}>
         <div className="flex items-baseline justify-between gap-3">
           <h3 className="truncate text-[15px] font-semibold tracking-[-0.01em] md:whitespace-normal md:text-[17px]">
             {name}
@@ -109,7 +114,9 @@ export function ItemCard({
           ) : null}
 
           {item.isFeatured && item.isAvailable ? (
-            <li className="md:hidden">
+            // Normally the desktop badge sits on the photo; with no photo it
+            // has to live here at every size.
+            <li className={showPhotos ? "md:hidden" : ""}>
               <span className="inline-flex items-center rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-ground">
                 {strings.houseFavourite}
               </span>

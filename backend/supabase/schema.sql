@@ -638,6 +638,18 @@ alter table public.restaurants
 comment on column public.restaurants.ordering_enabled is
   'Master switch. Off = the menu still reads, but nothing can be ordered.';
 
+alter table public.restaurants
+  add column if not exists currency_conversion_enabled boolean not null default true;
+
+comment on column public.restaurants.currency_conversion_enabled is
+  'Off = guests see prices only in base_currency, with no currency picker.';
+
+alter table public.restaurants
+  add column if not exists show_photos boolean not null default true;
+
+comment on column public.restaurants.show_photos is
+  'Off = the guest menu shows no dish photos at all.';
+
 -- ---------------------------------------------------------------------------
 -- Order numbers
 --

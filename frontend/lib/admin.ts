@@ -56,7 +56,7 @@ export async function getMerchantContext(): Promise<MerchantContext> {
     supabase
       .from("restaurants")
       .select(
-        "id, slug, name, theme, ordering_enabled, logo_path, address, phone, email, maps_url, timezone, socials, opening_hours, default_locale, base_currency, is_published, restaurant_translations(locale, description)",
+        "id, slug, name, theme, ordering_enabled, currency_conversion_enabled, show_photos, logo_path, address, phone, email, maps_url, timezone, socials, opening_hours, default_locale, base_currency, is_published, restaurant_translations(locale, description)",
       )
       .eq("id", restaurantId)
       .single(),
@@ -124,6 +124,9 @@ export async function getMerchantContext(): Promise<MerchantContext> {
         // Defaults to on when the column is absent, so a database that has not
         // had the ordering migration run yet is not silently refusing orders.
         orderingEnabled: (r.ordering_enabled as boolean | undefined) !== false,
+        currencyConversionEnabled:
+          (r.currency_conversion_enabled as boolean | undefined) !== false,
+        showPhotos: (r.show_photos as boolean | undefined) !== false,
         logoPath: (r.logo_path as string | null) ?? null,
         logoUrl: publicUrl((r.logo_path as string | null) ?? null),
         address: (r.address as string) ?? "",

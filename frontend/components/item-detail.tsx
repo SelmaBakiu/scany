@@ -98,8 +98,13 @@ export function ItemDetail({
 
       <main className="flex-grow">
         <div className="mx-auto max-w-[77.5rem] px-5 py-6 md:px-8 md:py-9">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-10">
-            {/* Image */}
+          <div
+            className={`grid gap-6 lg:gap-10 ${
+              restaurant.showPhotos ? "lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]" : ""
+            }`}
+          >
+            {/* Image — left out entirely when the merchant has photos off */}
+            {restaurant.showPhotos ? (
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-line bg-tint lg:aspect-square">
               {item.imageUrl ? (
                 <Image
@@ -122,6 +127,7 @@ export function ItemDetail({
                 </span>
               ) : null}
             </div>
+            ) : null}
 
             {/* Everything else */}
             <div className="min-w-0">

@@ -46,12 +46,15 @@ export function PrefsControls({
           expanded={open === "language"}
           onClick={() => setOpen("language")}
         />
-        <SheetTrigger
-          label={strings.currency}
-          display={currency.code}
-          expanded={open === "currency"}
-          onClick={() => setOpen("currency")}
-        />
+        {/* One currency means the merchant turned conversion off: nothing to pick. */}
+        {restaurant.currencies.length > 1 ? (
+          <SheetTrigger
+            label={strings.currency}
+            display={currency.code}
+            expanded={open === "currency"}
+            onClick={() => setOpen("currency")}
+          />
+        ) : null}
         <RestaurantInfoTrigger
           label={strings.restaurantInfo}
           expanded={open === "info"}
@@ -70,7 +73,7 @@ export function PrefsControls({
         />
       ) : null}
 
-      {open === "currency" ? (
+      {open === "currency" && restaurant.currencies.length > 1 ? (
         <CurrencySheet
           value={currency.code}
           currencies={restaurant.currencies}

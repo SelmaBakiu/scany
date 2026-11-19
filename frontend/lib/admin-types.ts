@@ -94,6 +94,10 @@ export type AdminRestaurant = {
   theme: string;
   /** The master switch for ordering; the clock closes it too. */
   orderingEnabled: boolean;
+  /** Off = the guest sees prices only in the base currency. */
+  currencyConversionEnabled: boolean;
+  /** Off = no dish photos on the guest's menu. */
+  showPhotos: boolean;
   logoPath: string | null;
   logoUrl: string | null;
   address: string;

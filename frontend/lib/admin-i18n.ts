@@ -255,6 +255,16 @@ export type AdminStrings = {
   orderingClosedNowNote: string;
   orderingOpenNowNote: string;
 
+  // ---- guest menu display switches
+  displaySection: string;
+  displaySectionHint: string;
+  showPhotos: string;
+  showPhotosHint: string;
+  currencyConversion: string;
+  currencyConversionHint: string;
+  switchOn: string;
+  switchOff: string;
+
   // ---- QR codes
   navQr: string;
   qrTitle: string;
@@ -321,6 +331,10 @@ export const ACTION_KEYS = [
   "orderNotFound",
   "orderingTurnedOn",
   "orderingTurnedOff",
+  "currencyConversionTurnedOn",
+  "currencyConversionTurnedOff",
+  "photosTurnedOn",
+  "photosTurnedOff",
 ] as const;
 
 export type ActionKey = (typeof ACTION_KEYS)[number];
@@ -545,6 +559,15 @@ const NB: AdminStrings = {
   orderingClosedNowNote: "Stengt for bestilling akkurat nå.",
   orderingOpenNowNote: "Åpent for bestilling akkurat nå.",
 
+  displaySection: "Visning for gjestene",
+  displaySectionHint: "Gjelder menyen gjestene ser når de skanner QR-koden.",
+  showPhotos: "Vis bilder av rettene",
+  showPhotosHint: "Slå av for en meny helt uten bilder. Bildene du har lastet opp blir ikke slettet.",
+  currencyConversion: "Valutaomregning",
+  currencyConversionHint: "Når denne er av ser gjestene bare prisene i restaurantens egen valuta, uten valgvelger.",
+  switchOn: "På",
+  switchOff: "Av",
+
   navQr: "QR-koder",
   qrTitle: "QR-koder",
   qrIntro:
@@ -600,6 +623,10 @@ const NB: AdminStrings = {
     orderNotFound: "Fant ikke bestillingen.",
     orderingTurnedOn: "Bestilling er slått på",
     orderingTurnedOff: "Bestilling er slått av",
+    currencyConversionTurnedOn: "Valutaomregning er slått på",
+    currencyConversionTurnedOff: "Valutaomregning er slått av",
+    photosTurnedOn: "Bilder vises på menyen",
+    photosTurnedOff: "Bilder er skjult på menyen",
   },
 };
 
@@ -824,6 +851,15 @@ const EN: AdminStrings = {
   orderingClosedNowNote: "Closed for orders right now.",
   orderingOpenNowNote: "Open for orders right now.",
 
+  displaySection: "What guests see",
+  displaySectionHint: "Applies to the menu guests open from the QR code.",
+  showPhotos: "Show dish photos",
+  showPhotosHint: "Turn off for a menu with no pictures at all. Photos you uploaded are kept.",
+  currencyConversion: "Currency conversion",
+  currencyConversionHint: "When off, guests only see prices in the restaurant's own currency, with no currency picker.",
+  switchOn: "On",
+  switchOff: "Off",
+
   navQr: "QR codes",
   qrTitle: "QR codes",
   qrIntro:
@@ -879,6 +915,10 @@ const EN: AdminStrings = {
     orderNotFound: "Order not found.",
     orderingTurnedOn: "Ordering is on",
     orderingTurnedOff: "Ordering is off",
+    currencyConversionTurnedOn: "Currency conversion is on",
+    currencyConversionTurnedOff: "Currency conversion is off",
+    photosTurnedOn: "Photos are shown on the menu",
+    photosTurnedOff: "Photos are hidden on the menu",
   },
 };
 

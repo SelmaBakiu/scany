@@ -2,6 +2,7 @@ import { getMerchantContext } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SELECT_ORDERS, toAdminOrder, type AdminOrder } from "@/lib/admin-orders";
 import { OrdersBoard } from "@/components/admin/orders-board";
+import { OrderingSwitchCard } from "@/components/admin/setting-switch";
 
 /**
  * The kitchen's screen. Never cached — an order list that is a minute old is
@@ -27,10 +28,15 @@ export default async function OrdersPage() {
     .filter((order): order is AdminOrder => order !== null);
 
   return (
-    <OrdersBoard
-      initial={orders}
-      baseCurrency={context.data.baseCurrency}
-      locale={context.data.restaurant.defaultLocale}
-    />
+    <>
+      <div className="mb-5">
+        <OrderingSwitchCard enabled={context.data.restaurant.orderingEnabled} />
+      </div>
+      <OrdersBoard
+        initial={orders}
+        baseCurrency={context.data.baseCurrency}
+        locale={context.data.restaurant.defaultLocale}
+      />
+    </>
   );
 }

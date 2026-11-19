@@ -36,7 +36,7 @@ const IMAGE_BUCKET = "menu-images";
  */
 const MENU_QUERY = `
   id, slug, name, base_currency, default_locale,
-  theme, ordering_enabled, logo_path, address, phone, email, maps_url, timezone, socials, opening_hours,
+  theme, ordering_enabled, currency_conversion_enabled, show_photos, logo_path, address, phone, email, maps_url, timezone, socials, opening_hours,
   restaurant_translations ( locale, description ),
   restaurant_locales (
     locales ( code, label, native_label )
@@ -102,7 +102,20 @@ export async function fetchRestaurantMenu(slug: string): Promise<MenuFetchResult
     .filter((l): l is Locale => Boolean(l))
     .sort(byDefaultLocaleFirst(restaurant.default_locale));
 
-  const menu = toActiveMenu(restaurant, (path) => publicImageUrl(supabase, path));
+  const raw = restaurant as unknown as {
+    theme?: string;
+    ordering_enabled?: boolean;
+    currency_conversion_enabled?: boolean;
+    show_photos?: boolean;
+  };
+  const currencyConversionEnabled = raw.currency_conversion_enabled !== false;
+  const showPhotos = raw.show_photos !== false;
+
+  // Photos off means no dish has a picture as far as the guest's UI knows,
+  // so every card and dish page falls back to its placeholder by itself.
+  const menu = toActiveMenu(restaurant, (path) =>
+    showPhotos ? publicImageUrl(supabase, path) : null,
+  );
 
   return {
     status: "ok",
@@ -112,14 +125,19 @@ export async function fetchRestaurantMenu(slug: string): Promise<MenuFetchResult
       baseCurrency,
       defaultLocale: restaurant.default_locale,
       locales: locales.length > 0 ? locales : [{ code: "en", label: "English", native_label: "English" }],
-      currencies: sortCurrencies(currencies, baseCurrency.code),
+      // Conversion off leaves exactly one currency, so every price resolves to
+      // the base currency and the picker has nothing to offer (it hides).
+      currencies: currencyConversionEnabled
+        ? sortCurrencies(currencies, baseCurrency.code)
+        : [baseCurrency],
       menu,
-      theme: (restaurant as unknown as { theme?: string }).theme ?? "lys",
+      theme: raw.theme ?? "lys",
       // Defaults to true when the column is missing, so a database that has
       // not had the ordering migration run yet still behaves sensibly rather
       // than silently refusing every order with no explanation.
-      orderingEnabled:
-        (restaurant as unknown as { ordering_enabled?: boolean }).ordering_enabled !== false,
+      orderingEnabled: raw.ordering_enabled !== false,
+      currencyConversionEnabled,
+      showPhotos,
       info: toRestaurantInfo(restaurant, (path) => publicImageUrl(supabase, path)),
       priceThresholds: computePriceThresholds(allPrices(menu)),
     },

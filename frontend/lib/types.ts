@@ -171,6 +171,13 @@ export type RestaurantMenu = {
    * is the half that actually matters.
    */
   orderingEnabled: boolean;
+  /**
+   * Off = prices only in the base currency and no currency picker. Enforced in
+   * lib/menu.ts by shrinking `currencies` to just the base one.
+   */
+  currencyConversionEnabled: boolean;
+  /** Off = no dish photos. Enforced in lib/menu.ts by nulling every imageUrl. */
+  showPhotos: boolean;
   info: RestaurantInfo;
   /**
    * The two cut points for the price filter, derived from this menu's own

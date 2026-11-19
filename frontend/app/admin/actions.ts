@@ -706,7 +706,41 @@ export async function setOrderStatus(
   };
 }
 
-/** The master switch on the Restaurant page. */
+/** Off = the guest sees prices only in the restaurant's own currency. */
+export async function setCurrencyConversionEnabled(enabled: boolean): Promise<ActionResult> {
+  return setRestaurantSwitch(
+    { currency_conversion_enabled: enabled },
+    enabled ? "currencyConversionTurnedOn" : "currencyConversionTurnedOff",
+  );
+}
+
+/** Off = no dish photos on the guest's menu. The photos themselves are kept. */
+export async function setShowPhotos(enabled: boolean): Promise<ActionResult> {
+  return setRestaurantSwitch(
+    { show_photos: enabled },
+    enabled ? "photosTurnedOn" : "photosTurnedOff",
+  );
+}
+
+async function setRestaurantSwitch(
+  patch: Record<string, boolean>,
+  key: ActionKey,
+): Promise<ActionResult> {
+  const ctx = await context();
+  if (!ctx) return fail("notSignedIn");
+
+  const { error } = await ctx.supabase
+    .from("restaurants")
+    .update(patch)
+    .eq("id", ctx.restaurantId);
+
+  if (error) return fail("saveFailed", error.message);
+
+  refresh(ctx);
+  return { ok: true, key };
+}
+
+/** The master switch on the Restaurant and Orders pages. */
 export async function setOrderingEnabled(enabled: boolean): Promise<ActionResult> {
   const ctx = await context();
   if (!ctx) return fail("notSignedIn");
@@ -719,5 +753,6 @@ export async function setOrderingEnabled(enabled: boolean): Promise<ActionResult
   if (error) return fail("saveFailed", error.message);
 
   refresh(ctx);
+  revalidatePath("/admin/orders");
   return { ok: true, key: enabled ? "orderingTurnedOn" : "orderingTurnedOff" };
 }
